@@ -1,66 +1,136 @@
 import type { Metadata } from "next";
-import { CalendarCheck, UserCheck, UserX, Clock } from "lucide-react";
+import Link from "next/link";
+import { Zap, ZapOff, CalendarOff } from "lucide-react";
 import BlurFade from "@/components/effects/blur-fade";
 import PageHeader from "@/components/ui/page-header";
 import Typography from "@/components/ui/typography";
-import { Button } from "@/components/ui/button";
+import { KartuPresensi } from "@/components/kartu-presensi";
+import { presensiHariIni, riwayatPresensi, cekHariLibur } from "@/services/presensi";
+import { getPengaturan } from "@/services/pengaturan";
+import { tanggalWIB, namaHariWIB, formatJamWIB } from "@/services/waktu";
 
-export const metadata: Metadata = {
-  title: "Dashboard",
-};
+export const metadata: Metadata = { title: "Hari Ini" };
 
-/**
- * Angka masih placeholder — sambungkan ke sumber data setelah backend siap.
- */
-const STATS = [
-  { label: "Hadir hari ini", value: "—", icon: UserCheck, tone: "emerald" },
-  { label: "Tidak hadir", value: "—", icon: UserX, tone: "red" },
-  { label: "Terlambat", value: "—", icon: Clock, tone: "amber" },
-  { label: "Total karyawan", value: "—", icon: CalendarCheck, tone: "blue" },
-] as const;
+// Selalu ambil data terbaru — presensi berubah sepanjang hari.
+export const dynamic = "force-dynamic";
 
-// Warna hanya dipakai sebagai penanda status — sesuai aturan kit.
-const TONES: Record<string, string> = {
-  emerald: "bg-emerald-500/10 text-emerald-500",
-  red: "bg-red-500/10 text-red-500",
-  amber: "bg-amber-500/10 text-amber-500",
-  blue: "bg-blue-500/10 text-blue-500",
-};
+export default async function DashboardPage() {
+  const tanggal = tanggalWIB();
 
-export default function DashboardPage() {
+  const [baris, riwayat, pengaturan, libur] = await Promise.all([
+    presensiHariIni(),
+    riwayatPresensi(30),
+    getPengaturan(),
+    cekHariLibur(tanggal),
+  ]);
+
+  // Ringkasan 30 hari terakhir.
+  const total = riwayat.length;
+  const hadir = riwayat.filter((r) => r.status === "hadir").length;
+  const telat = riwayat.filter((r) => r.status === "telat").length;
+  const lupaKeluar = riwayat.filter((r) => r.jam_masuk && !r.jam_keluar).length;
+
   return (
     <BlurFade>
       <PageHeader
-        title="Dashboard"
-        subtitle="Ringkasan kehadiran hari ini dan aktivitas terbaru."
-        action={<Button disabled title="Menunggu backend">Perbarui data</Button>}
+        title="Hari Ini"
+        subtitle={`${namaHariWIB()}, ${tanggal} · NIK 3028226`}
       />
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {STATS.map(({ label, value, icon: Icon, tone }, i) => (
-          <BlurFade key={label} inView delay={i * 0.05}>
-            <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-xs transition-all duration-300 hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-900/50 dark:hover:border-neutral-700">
-              <div className={`w-fit rounded-lg p-2 ${TONES[tone]}`}>
-                <Icon className="size-5" />
-              </div>
-              <p className="mt-4 text-3xl font-bold">{value}</p>
-              <p className="text-xs font-medium text-muted-foreground">
-                {label}
-              </p>
-            </div>
-          </BlurFade>
-        ))}
-      </div>
-
-      <Typography.H4 className="mb-3 mt-10">Aktivitas terbaru</Typography.H4>
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-xs dark:border-neutral-800 dark:bg-neutral-900/50">
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            Belum ada data. Sambungkan sumber data untuk mulai menampilkan
-            aktivitas.
+      {libur.libur && (
+        <div className="mb-5 flex items-center gap-3 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
+          <CalendarOff className="size-4 shrink-0 text-blue-500" />
+          <p className="text-sm text-blue-500">
+            Hari ini libur: <strong>{libur.nama}</strong>
           </p>
         </div>
+      )}
+
+      <KartuPresensi baris={baris} />
+
+      {/* Status otomasi */}
+      <Link href="/otomasi" className="mt-5 block">
+        <div className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-4 shadow-xs transition-all duration-300 hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-900/50 dark:hover:border-neutral-700">
+          {pengaturan.auto_aktif ? (
+            <Zap className="size-4 shrink-0 text-emerald-500" />
+          ) : (
+            <ZapOff className="size-4 shrink-0 text-muted-foreground" />
+          )}
+          <div className="flex-1">
+            <p className="text-sm font-medium">
+              Otomasi {pengaturan.auto_aktif ? "aktif" : "nonaktif"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {pengaturan.auto_aktif
+                ? `Masuk ${pengaturan.checkin_mulai}–${pengaturan.checkin_selesai} · keluar ${pengaturan.checkout_mulai}–${pengaturan.checkout_selesai}`
+                : "Klik untuk mengatur jadwal otomatis"}
+            </p>
+          </div>
+        </div>
+      </Link>
+
+      <Typography.H4 className="mb-3 mt-10">30 hari terakhir</Typography.H4>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <Statistik label="Tercatat" nilai={total} />
+        <Statistik label="Hadir" nilai={hadir} warna="text-emerald-500" />
+        <Statistik label="Telat" nilai={telat} warna="text-amber-500" />
+        <Statistik
+          label="Lupa check-out"
+          nilai={lupaKeluar}
+          warna={lupaKeluar > 0 ? "text-red-500" : undefined}
+        />
+      </div>
+
+      <Typography.H4 className="mb-3 mt-10">Presensi terakhir</Typography.H4>
+      <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xs dark:border-neutral-800 dark:bg-neutral-900/50">
+        {riwayat.length === 0 ? (
+          <p className="p-6 text-center text-sm text-muted-foreground">
+            Belum ada data presensi.
+          </p>
+        ) : (
+          <ul className="divide-y divide-neutral-200 dark:divide-neutral-800">
+            {riwayat.slice(0, 7).map((r) => (
+              <li
+                key={r.id}
+                className="flex items-center justify-between gap-4 px-5 py-3 text-sm"
+              >
+                <span className="font-medium tabular-nums">{r.tanggal}</span>
+                <span className="text-muted-foreground tabular-nums">
+                  {formatJamWIB(r.jam_masuk)} – {formatJamWIB(r.jam_keluar)}
+                </span>
+                <span
+                  className={
+                    r.status === "hadir"
+                      ? "text-emerald-500"
+                      : r.status === "telat"
+                      ? "text-amber-500"
+                      : "text-muted-foreground"
+                  }
+                >
+                  {r.status}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </BlurFade>
+  );
+}
+
+function Statistik({
+  label,
+  nilai,
+  warna,
+}: {
+  label: string;
+  nilai: number;
+  warna?: string;
+}) {
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-xs dark:border-neutral-800 dark:bg-neutral-900/50">
+      <p className={`text-3xl font-bold tabular-nums ${warna ?? ""}`}>{nilai}</p>
+      <p className="mt-1 text-xs font-medium text-muted-foreground">{label}</p>
+    </div>
   );
 }

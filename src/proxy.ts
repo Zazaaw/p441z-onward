@@ -41,8 +41,22 @@ function readSession(raw: string | undefined): boolean {
   }
 }
 
-/** Prefix yang dilewati sepenuhnya (aset & internal Next.js). */
-const BYPASS_PREFIXES = ["/_next", "/favicon.ico", "/icon", "/apple-icon"];
+/**
+ * Prefix yang dilewati sepenuhnya.
+ *
+ * `/api/cron` sengaja dikecualikan: penjadwal eksternal tidak punya cookie
+ * sesi, jadi kalau ikut aturan deny-by-default dia akan selamanya kena
+ * redirect ke /login. Endpoint itu menjaga dirinya sendiri dengan
+ * `Authorization: Bearer <CRON_SECRET>` — dan menolak jalan sama sekali
+ * kalau CRON_SECRET belum diset.
+ */
+const BYPASS_PREFIXES = [
+  "/_next",
+  "/favicon.ico",
+  "/icon",
+  "/apple-icon",
+  "/api/cron",
+];
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;

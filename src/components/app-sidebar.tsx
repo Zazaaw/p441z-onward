@@ -4,10 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  CalendarCheck,
-  Users,
-  FileBarChart,
-  Settings,
+  History,
+  Zap,
+  ScrollText,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,20 +21,18 @@ type NavGroup = { heading: string; items: NavItem[] };
 
 export const NAV: NavGroup[] = [
   {
-    heading: "Ringkasan",
-    items: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }],
-  },
-  {
-    heading: "Data",
+    heading: "Presensi",
     items: [
-      { href: "/absensi", label: "Absensi", icon: CalendarCheck },
-      { href: "/karyawan", label: "Karyawan", icon: Users },
-      { href: "/laporan", label: "Laporan", icon: FileBarChart },
+      { href: "/dashboard", label: "Hari Ini", icon: LayoutDashboard },
+      { href: "/riwayat", label: "Riwayat", icon: History },
     ],
   },
   {
-    heading: "Sistem",
-    items: [{ href: "/pengaturan", label: "Pengaturan", icon: Settings }],
+    heading: "Otomasi",
+    items: [
+      { href: "/otomasi", label: "Pengaturan", icon: Zap },
+      { href: "/log", label: "Log", icon: ScrollText },
+    ],
   },
 ];
 
