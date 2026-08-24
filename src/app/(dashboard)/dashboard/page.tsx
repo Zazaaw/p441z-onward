@@ -7,7 +7,7 @@ import Typography from "@/components/ui/typography";
 import { KartuPresensi } from "@/components/kartu-presensi";
 import { presensiHariIni, riwayatPresensi, cekHariLibur } from "@/services/presensi";
 import { getPengaturan } from "@/services/pengaturan";
-import { tanggalWIB, namaHariWIB, formatJamWIB } from "@/services/waktu";
+import { tanggalWIB, namaHariWIB, formatJamWIB, jamWIB } from "@/services/waktu";
 
 export const metadata: Metadata = { title: "Hari Ini" };
 
@@ -46,7 +46,12 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <KartuPresensi baris={baris} />
+      <KartuPresensi
+        baris={baris}
+        jamSekarang={jamWIB()}
+        rentangCheckin={[pengaturan.checkin_mulai, pengaturan.checkin_selesai]}
+        rentangCheckout={[pengaturan.checkout_mulai, pengaturan.checkout_selesai]}
+      />
 
       {/* Status otomasi */}
       <Link href="/otomasi" className="mt-5 block">

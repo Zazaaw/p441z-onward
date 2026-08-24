@@ -181,16 +181,15 @@ function Saklar({
         aria-checked={nilai}
         onClick={() => onUbah(!nilai)}
         className={cn(
-          "relative h-6 w-11 shrink-0 rounded-full transition-colors",
-          nilai ? "bg-emerald-500" : "bg-neutral-300 dark:bg-neutral-700"
+          // flex + justify-* memindahkan knob, jadi tidak perlu hitung
+          // translate manual — itu yang bikin knob-nya tadi keluar track.
+          "flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors",
+          nilai
+            ? "justify-end bg-emerald-500"
+            : "justify-start bg-neutral-300 dark:bg-neutral-700"
         )}
       >
-        <span
-          className={cn(
-            "absolute top-0.5 size-5 rounded-full bg-white transition-transform",
-            nilai ? "translate-x-[22px]" : "translate-x-0.5"
-          )}
-        />
+        <span className="size-5 rounded-full bg-white shadow-sm transition-transform" />
       </button>
     </label>
   );
