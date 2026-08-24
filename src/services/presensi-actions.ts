@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { checkIn, checkOut, type HasilAksi } from "./presensi";
+import { checkIn, checkOut, ubahJam, type HasilAksi } from "./presensi";
 import { simpanPengaturan, type Pengaturan } from "./pengaturan";
 import { catatLog } from "./log";
 import { jamWIB } from "./waktu";
@@ -57,6 +57,42 @@ export async function aksiCheckOut(jam?: string): Promise<HasilAksi> {
     ok: hasil.ok,
     pesan: hasil.pesan,
   });
+  revalidatePath("/dashboard");
+  revalidatePath("/riwayat");
+  return hasil;
+}
+
+/**
+ * Ubah jam pada baris yang sudah tercatat.
+ *
+ * `jam_keluar: null` artinya "kosongkan", sedangkan tidak menyertakan
+ * field-nya artinya "jangan sentuh". Dua hal berbeda, jadi tipenya sengaja
+ * membedakan `null` dan `undefined`.
+ */
+export async function aksiUbahJam(
+  id: number,
+  patch: { jam_masuk?: string; jam_keluar?: string | null }
+): Promise<HasilAksi> {
+  if (patch.jam_masuk && !jamValid(patch.jam_masuk)) {
+    return { ok: false, pesan: "Format jam masuk tidak valid. Pakai HH:MM." };
+  }
+  if (
+    patch.jam_keluar !== undefined &&
+    patch.jam_keluar !== null &&
+    !jamValid(patch.jam_keluar)
+  ) {
+    return { ok: false, pesan: "Format jam keluar tidak valid. Pakai HH:MM." };
+  }
+
+  const hasil = await ubahJam(id, patch);
+
+  await catatLog({
+    aksi: patch.jam_masuk ? "checkin" : "checkout",
+    sumber: "manual",
+    ok: hasil.ok,
+    pesan: `Ubah jam — ${hasil.pesan}`,
+  });
+
   revalidatePath("/dashboard");
   revalidatePath("/riwayat");
   return hasil;

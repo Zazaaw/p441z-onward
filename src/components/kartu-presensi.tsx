@@ -1,14 +1,30 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { LogIn, LogOut } from "lucide-react";
+import { LogIn, LogOut, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ModalJam, type JenisAksi } from "@/components/modal-jam";
-import { aksiCheckIn, aksiCheckOut } from "@/services/presensi-actions";
+import { ModalUbahJam } from "@/components/modal-ubah-jam";
+import {
+  aksiCheckIn,
+  aksiCheckOut,
+  aksiUbahJam,
+} from "@/services/presensi-actions";
 import type { BarisPresensi } from "@/services/presensi";
 import { formatJamWIB } from "@/services/waktu";
 import { cn } from "@/lib/utils";
+
+/** ISO → "HH:MM" WIB untuk mengisi <input type="time">. */
+function keInputJam(iso: string | null | undefined): string {
+  if (!iso) return "";
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Jakarta",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date(iso));
+}
 
 /** Warna status — satu-satunya tempat warna dipakai, sebagai penanda keadaan. */
 const WARNA_STATUS: Record<string, string> = {
@@ -33,6 +49,7 @@ export function KartuPresensi({
 }) {
   const [pending, mulai] = useTransition();
   const [modal, setModal] = useState<JenisAksi | null>(null);
+  const [ubah, setUbah] = useState(false);
 
   const konfirmasi = (jam: string) => {
     const jenis = modal;
@@ -48,6 +65,22 @@ export function KartuPresensi({
       } else {
         // Gagal → modal tetap terbuka supaya jam bisa dibetulkan tanpa
         // mengulang dari awal.
+        toast.error(hasil.pesan);
+      }
+    });
+  };
+
+  const simpanUbahan = (patch: {
+    jam_masuk?: string;
+    jam_keluar?: string | null;
+  }) => {
+    if (!baris) return;
+    mulai(async () => {
+      const hasil = await aksiUbahJam(baris.id, patch);
+      if (hasil.ok) {
+        toast.success(hasil.pesan);
+        setUbah(false);
+      } else {
         toast.error(hasil.pesan);
       }
     });
@@ -121,11 +154,22 @@ export function KartuPresensi({
         </div>
 
         {baris && (
-          <p className="mt-4 text-xs text-muted-foreground">
-            {baris.jenis?.toUpperCase()}
-            {baris.shift ? ` · shift ${baris.shift}` : ""}
-            {baris.mood ? ` · mood ${baris.mood}` : ""}
-          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-muted-foreground">
+              {baris.jenis?.toUpperCase()}
+              {baris.shift ? ` · shift ${baris.shift}` : ""}
+              {baris.mood ? ` · mood ${baris.mood}` : ""}
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setUbah(true)}
+              disabled={pending}
+            >
+              <Pencil />
+              Ubah jam
+            </Button>
+          </div>
         )}
       </div>
 
@@ -137,6 +181,15 @@ export function KartuPresensi({
         pending={pending}
         onTutup={() => !pending && setModal(null)}
         onKonfirmasi={konfirmasi}
+      />
+
+      <ModalUbahJam
+        buka={ubah}
+        jamMasukAwal={keInputJam(baris?.jam_masuk)}
+        jamKeluarAwal={keInputJam(baris?.jam_keluar)}
+        pending={pending}
+        onTutup={() => !pending && setUbah(false)}
+        onSimpan={simpanUbahan}
       />
     </>
   );

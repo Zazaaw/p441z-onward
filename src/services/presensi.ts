@@ -146,6 +146,70 @@ export async function checkIn(jamPaksa?: string): Promise<HasilAksi> {
 }
 
 /**
+ * UBAH jam pada baris presensi yang SUDAH ada.
+ *
+ * Beda dari checkIn/checkOut: ini tidak peduli baris sudah terisi atau belum —
+ * memang tugasnya membetulkan. Dipakai kalau salah pilih jam.
+ *
+ * Status ikut dihitung ulang saat jam masuk berubah, supaya tidak ada baris
+ * yang jam masuknya 07:30 tapi statusnya masih 'telat' — itu bakal
+ * membingungkan waktu dibaca ulang nanti.
+ *
+ * Kolom yang tidak disebut TIDAK disentuh (mis. mood, koordinat).
+ */
+export async function ubahJam(
+  id: number,
+  patch: { jam_masuk?: string; jam_keluar?: string | null }
+): Promise<HasilAksi> {
+  const { data: baris, error: errBaca } = await ess
+    .from("presensi")
+    .select("id, nik, tanggal, jam_masuk")
+    .eq("id", id)
+    .eq("nik", MY_NIK) // jangan sampai bisa mengubah baris orang lain
+    .maybeSingle();
+
+  if (errBaca) return { ok: false, pesan: `Gagal baca baris: ${errBaca.message}` };
+  if (!baris) return { ok: false, pesan: "Baris presensi tidak ditemukan." };
+
+  const update: Record<string, unknown> = {};
+  const catatan: string[] = [];
+
+  if (patch.jam_masuk) {
+    update.jam_masuk = timestampWIB(
+      baris.tanggal,
+      patch.jam_masuk,
+      Math.floor(Math.random() * 60)
+    );
+    // Jam masuk berubah → status harus ikut, kalau tidak jadi tidak konsisten.
+    update.status = statusDariJam(patch.jam_masuk);
+    catatan.push(`masuk ${patch.jam_masuk} (${update.status})`);
+  }
+
+  if (patch.jam_keluar !== undefined) {
+    if (patch.jam_keluar === null) {
+      update.jam_keluar = null;
+      catatan.push("jam keluar dikosongkan");
+    } else {
+      update.jam_keluar = timestampWIB(
+        baris.tanggal,
+        patch.jam_keluar,
+        Math.floor(Math.random() * 60)
+      );
+      catatan.push(`keluar ${patch.jam_keluar}`);
+    }
+  }
+
+  if (Object.keys(update).length === 0) {
+    return { ok: false, pesan: "Tidak ada yang diubah." };
+  }
+
+  const { error } = await ess.from("presensi").update(update).eq("id", id);
+  if (error) return { ok: false, pesan: `Gagal mengubah: ${error.message}` };
+
+  return { ok: true, pesan: `Diperbarui — ${catatan.join(", ")}.` };
+}
+
+/**
  * CHECK-OUT — UPDATE baris hari ini, bukan insert.
  *
  * Hanya mengisi baris yang `jam_keluar`-nya masih kosong. Kalau sudah terisi,
