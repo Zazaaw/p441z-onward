@@ -42,6 +42,35 @@ export function statusDariJam(jam: string): "hadir" | "telat" {
   return keMenit(jam) <= AMBANG_TELAT ? "hadir" : "telat";
 }
 
+export type ProfilSaya = {
+  nik: string;
+  nama: string;
+  foto: string | null;
+};
+
+/**
+ * Profil pemilik dashboard, diambil dari ESS.
+ *
+ * Nama TIDAK ada di tabel `users` (isinya cuma nik, foto, preferensi) —
+ * adanya di tabel `cv` kolom "namaLengkap". Foto ada di `users.foto_url`.
+ * Jadi perlu dua query, dijalankan berbarengan.
+ *
+ * Kalau salah satu gagal, jangan sampai seluruh dashboard ikut error —
+ * cukup jatuhkan ke NIK sebagai nama.
+ */
+export async function profilSaya(): Promise<ProfilSaya> {
+  const [cv, user] = await Promise.all([
+    ess.from("cv").select('"namaLengkap"').eq("nik", MY_NIK).maybeSingle(),
+    ess.from("users").select("foto_url").eq("nik", MY_NIK).maybeSingle(),
+  ]);
+
+  return {
+    nik: MY_NIK,
+    nama: (cv.data as { namaLengkap?: string } | null)?.namaLengkap ?? MY_NIK,
+    foto: (user.data as { foto_url?: string } | null)?.foto_url ?? null,
+  };
+}
+
 /** Presensi hari ini, atau null kalau belum absen. */
 export async function presensiHariIni(): Promise<BarisPresensi | null> {
   const { data, error } = await ess

@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Zap, ZapOff, CalendarOff } from "lucide-react";
+import { Zap, ZapOff } from "lucide-react";
 import BlurFade from "@/components/effects/blur-fade";
-import PageHeader from "@/components/ui/page-header";
 import Typography from "@/components/ui/typography";
 import { KartuPresensi } from "@/components/kartu-presensi";
-import { presensiHariIni, riwayatPresensi, cekHariLibur } from "@/services/presensi";
+import { HeroSapaan } from "@/components/hero-sapaan";
+import {
+  presensiHariIni,
+  riwayatPresensi,
+  cekHariLibur,
+  profilSaya,
+} from "@/services/presensi";
 import { getPengaturan } from "@/services/pengaturan";
 import { tanggalWIB, namaHariWIB, formatJamWIB, jamWIB } from "@/services/waktu";
 
@@ -17,11 +22,12 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const tanggal = tanggalWIB();
 
-  const [baris, riwayat, pengaturan, libur] = await Promise.all([
+  const [baris, riwayat, pengaturan, libur, profil] = await Promise.all([
     presensiHariIni(),
     riwayatPresensi(30),
     getPengaturan(),
     cekHariLibur(tanggal),
+    profilSaya(),
   ]);
 
   // Ringkasan 30 hari terakhir.
@@ -32,19 +38,16 @@ export default async function DashboardPage() {
 
   return (
     <BlurFade>
-      <PageHeader
-        title="Hari Ini"
-        subtitle={`${namaHariWIB()}, ${tanggal} · NIK 3028226`}
+      <HeroSapaan
+        profil={profil}
+        baris={baris}
+        jamSekarang={jamWIB()}
+        tanggal={tanggal}
+        hari={namaHariWIB()}
+        libur={libur}
       />
 
-      {libur.libur && (
-        <div className="mb-5 flex items-center gap-3 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
-          <CalendarOff className="size-4 shrink-0 text-blue-500" />
-          <p className="text-sm text-blue-500">
-            Hari ini libur: <strong>{libur.nama}</strong>
-          </p>
-        </div>
-      )}
+      <div className="mt-5" />
 
       <KartuPresensi
         baris={baris}
