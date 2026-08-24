@@ -157,3 +157,35 @@ export async function getNowPlaying(): Promise<Lagu | null> {
     return null;
   }
 }
+
+/**
+ * Foto-foto Satu Visual dari database portfolio, untuk latar panel login yang
+ * berganti otomatis.
+ *
+ * Dibaca dengan anon key lewat REST langsung — tabel `photography` memang
+ * publik (sudah dipakai halaman portfolio tanpa login), jadi tidak perlu
+ * service role. Gagal apa pun dikembalikan sebagai array kosong supaya
+ * halaman login tidak ikut tumbang kalau portfolio sedang mati.
+ */
+export async function getFotoShowcase(limit = 12): Promise<string[]> {
+  const url = process.env.PORTFOLIO_SUPABASE_URL;
+  const key = process.env.PORTFOLIO_SUPABASE_ANON_KEY;
+  if (!url || !key) return [];
+
+  try {
+    const r = await fetch(
+      `${url}/rest/v1/photography?select=image_url&order=created_at.desc&limit=${limit}`,
+      {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+        // Foto jarang berubah; cache sejam supaya tiap kunjungan ke halaman
+        // login tidak menembak database lagi.
+        next: { revalidate: 3600 },
+      }
+    );
+    if (!r.ok) return [];
+    const data: Array<{ image_url: string | null }> = await r.json();
+    return data.map((d) => d.image_url).filter((u): u is string => !!u);
+  } catch {
+    return [];
+  }
+}
