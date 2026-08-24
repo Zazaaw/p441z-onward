@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { LogoDaily } from "@/components/logo-daily";
 
 /**
  * Sumber tunggal navigasi. Sidebar desktop dan drawer mobile membacanya dari
@@ -82,7 +83,7 @@ export function AppSidebar() {
       )}
     >
       <div className="mb-6 px-3">
-        <p className="text-sm font-bold">Daily</p>
+        <LogoDaily className="text-sm" />
         <p className="text-xs text-muted-foreground">Panel pengelolaan</p>
       </div>
       <div className="flex-1 overflow-y-auto">

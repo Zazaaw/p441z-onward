@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import BlurFade from "@/components/effects/blur-fade";
 import { ShinyText } from "@/components/effects/shiny-text";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LogoDaily } from "@/components/logo-daily";
 import { LoginForm } from "./login-form";
 import { Showcase } from "./showcase";
 import { MapPin, ShieldCheck } from "lucide-react";
@@ -44,7 +45,10 @@ export default async function LoginPage() {
           Form yang duluan dibaca, bukan panel bermerek — sama seperti
           halaman auth di portfolio. */}
       <BlurFade className="flex items-center justify-center px-6 py-10 sm:px-10">
-        <div className="w-full max-w-sm">
+        {/* Kartu berbingkai — memberi form batas yang jelas, sepadan dengan
+            panel kanan yang juga sebuah kartu. Tanpa ini form terlihat
+            mengambang di ruang kosong. */}
+        <div className="w-full max-w-sm rounded-2xl border border-neutral-200 bg-white/50 p-7 backdrop-blur-sm sm:p-8 dark:border-neutral-800 dark:bg-neutral-900/40">
           {/* Identitas ringkas. Di desktop panel kanan sudah memuatnya,
               jadi ini hanya tampil saat panel disembunyikan. */}
           <div className="mb-8 flex items-center gap-3 lg:hidden">
@@ -81,7 +85,7 @@ export default async function LoginPage() {
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-60" />
               <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
             </span>
-            <span className="text-sm font-semibold tracking-tight">Daily</span>
+            <LogoDaily className="text-base" />
             <span className="text-sm text-muted-foreground">
               · {namaHariWIB()}
             </span>

@@ -8,6 +8,7 @@ import { UserMenu } from "@/components/user-menu";
 import { SidebarNav } from "@/components/app-sidebar";
 import type { SessionUser } from "@/services/auth";
 import { cn } from "@/lib/utils";
+import { LogoDaily } from "@/components/logo-daily";
 
 export function AppHeader({ user }: { user: SessionUser }) {
   const [open, setOpen] = useState(false);
@@ -52,7 +53,7 @@ export function AppHeader({ user }: { user: SessionUser }) {
             )}
           >
             <div className="mb-6 px-3">
-              <p className="text-sm font-bold">Daily</p>
+              <LogoDaily className="text-sm" />
               <p className="text-xs text-muted-foreground">Panel pengelolaan</p>
             </div>
             <SidebarNav onNavigate={() => setOpen(false)} />
