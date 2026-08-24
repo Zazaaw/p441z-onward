@@ -71,47 +71,6 @@ export async function profilSaya(): Promise<ProfilSaya> {
   };
 }
 
-/**
- * Ringkasan singkat untuk panel kiri halaman login.
- *
- * Dipanggil SEBELUM login, jadi sengaja hanya angka agregat — tidak ada
- * detail yang sensitif kalau terlihat orang lain di layar.
- *
- * Semua kegagalan ditelan: halaman login TIDAK BOLEH gagal render hanya
- * karena database sedang tidak bisa dihubungi. Orang tetap harus bisa masuk.
- */
-export async function ringkasLogin(): Promise<{
-  totalHari: number;
-  hadir: number;
-  streak: number;
-} | null> {
-  try {
-    const { data, error } = await ess
-      .from("presensi")
-      .select("tanggal, status")
-      .eq("nik", MY_NIK)
-      .order("tanggal", { ascending: false })
-      .limit(60);
-
-    if (error || !data) return null;
-
-    // Streak = berapa presensi berturut-turut terakhir yang statusnya 'hadir'.
-    let streak = 0;
-    for (const r of data) {
-      if (r.status === "hadir") streak++;
-      else break;
-    }
-
-    return {
-      totalHari: data.length,
-      hadir: data.filter((r) => r.status === "hadir").length,
-      streak,
-    };
-  } catch {
-    return null;
-  }
-}
-
 /** Presensi hari ini, atau null kalau belum absen. */
 export async function presensiHariIni(): Promise<BarisPresensi | null> {
   const { data, error } = await ess

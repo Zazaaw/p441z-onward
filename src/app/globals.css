@@ -202,6 +202,12 @@
   }
 
   /* A light sweep across text or buttons. */
+  /* Tiga batang penanda musik sedang berbunyi. */
+  @keyframes bar {
+    0%, 100% { height: 30%; }
+    50%      { height: 100%; }
+  }
+
   @keyframes shine {
     from { background-position: 200% 0; }
     to   { background-position: -200% 0; }

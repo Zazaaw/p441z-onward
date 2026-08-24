@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
         hostname: "qlhucbjdeyvzqdhqwdjz.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },
+      // Sampul album dari Last.fm (dua subdomain yang dipakai bergantian).
+      { protocol: "https", hostname: "lastfm.freetls.fastly.net" },
+      { protocol: "https", hostname: "lastfm-img2.akamaized.net" },
     ],
   },
 };

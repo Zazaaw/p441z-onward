@@ -1,101 +1,152 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Suspense } from "react";
-import { Fingerprint, Clock3, ShieldCheck, Flame } from "lucide-react";
+import { Code2, MapPin } from "lucide-react";
+import { SiGithub } from "react-icons/si";
 import BlurFade from "@/components/effects/blur-fade";
 import DotPattern from "@/components/effects/dot-pattern";
 import { ShinyText } from "@/components/effects/shiny-text";
 import { JamHidup } from "@/components/jam-hidup";
+import { KontribusiGrid } from "@/components/kontribusi-grid";
+import { NowPlaying } from "@/components/now-playing";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LoginForm } from "./login-form";
-import { ringkasLogin } from "@/services/presensi";
-import { jamWIB, tanggalWIB, namaHariWIB } from "@/services/waktu";
+import { profilSaya } from "@/services/presensi";
+import {
+  getKontribusiGithub,
+  getWakatime,
+  getNowPlaying,
+} from "@/services/portfolio";
+import { jamWIB } from "@/services/waktu";
 
-export const metadata: Metadata = { title: "Masuk" };
+export const metadata: Metadata = {
+  title: "Masuk",
+  // Halaman ini memuat identitas personal; tetap jangan diindeks.
+  robots: { index: false, follow: false },
+};
 
-// Panel kiri menampilkan jam dan angka terkini, jadi tidak boleh di-cache.
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
-  const ringkas = await ringkasLogin();
+  // Semua sumber ditembak berbarengan, dan tiap fungsi sudah menelan
+  // kegagalannya sendiri (mengembalikan null), jadi halaman ini tidak akan
+  // gagal render walau semua API mati.
+  const [profil, github, waka, lagu] = await Promise.all([
+    profilSaya().catch(() => null),
+    getKontribusiGithub(),
+    getWakatime(),
+    getNowPlaying(),
+  ]);
 
   return (
-    <main className="grid min-h-dvh lg:grid-cols-2">
-      {/* ── KIRI: panel identitas ──────────────────────────────────────────
-          Sengaja selalu gelap, tidak ikut tema. Sisi ini berperan sebagai
-          "papan nama" produk; kontras tetapnya yang membuat sisi kanan
-          (form) terbaca sebagai area kerja.
-          Disembunyikan di bawah lg — di layar kecil form yang harus dapat
-          seluruh ruang, bukan dekorasi. */}
-      <section className="relative hidden overflow-hidden bg-neutral-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
+    <main className="grid min-h-dvh lg:grid-cols-[1.15fr_1fr]">
+      {/* ── KIRI: sisi personal ───────────────────────────────────────────
+          Selalu gelap, tidak ikut tema. Ini "halaman muka" — yang dilihat
+          orang sebelum masuk, jadi isinya siapa aku, bukan aplikasi apa ini. */}
+      <section className="relative hidden overflow-hidden bg-neutral-950 text-white lg:flex lg:flex-col lg:justify-between lg:p-12">
         <DotPattern
-          width={22}
-          height={22}
+          width={24}
+          height={24}
           cx={1}
           cy={1}
           cr={1}
-          className="text-white/25 [mask-image:radial-gradient(120%_80%_at_30%_20%,white,transparent)]"
+          className="text-white/20 [mask-image:radial-gradient(130%_90%_at_20%_10%,white,transparent)]"
         />
 
-        {/* Merek */}
+        {/* Identitas */}
         <BlurFade className="relative">
-          <div className="flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/15">
-              <Fingerprint className="size-4.5" />
+          <div className="flex items-center gap-4">
+            <div className="relative size-14 shrink-0 overflow-hidden rounded-full ring-1 ring-white/15">
+              {profil?.foto ? (
+                <Image
+                  src={profil.foto}
+                  alt={profil.nama}
+                  fill
+                  sizes="56px"
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <span className="flex size-full items-center justify-center bg-white/10 text-sm font-bold">
+                  FH
+                </span>
+              )}
             </div>
             <div>
-              <p className="text-sm font-semibold leading-tight">Absensi</p>
-              <p className="text-xs text-white/50">Panel pengelolaan</p>
+              <p className="text-base font-semibold leading-tight">
+                {profil?.nama ?? "Faiz Hazim Hawari"}
+              </p>
+              <p className="text-sm text-white/45">
+                Fullstack Developer & Designer
+              </p>
             </div>
           </div>
         </BlurFade>
 
-        {/* Jam besar — inti panel ini. Presensi soal waktu, jadi waktu yang
-            ditampilkan paling besar. */}
+        {/* Jam — tetap jadi elemen terbesar. Ini gerbang aplikasi presensi,
+            jadi waktu tetap yang paling penting meski nuansanya personal. */}
         <BlurFade delay={0.1} className="relative">
-          <p className="text-sm text-white/50">{namaHariWIB()}</p>
-          <p className="mt-1 text-7xl font-bold tracking-tight tabular-nums">
+          <p className="text-8xl font-bold leading-none tracking-tighter tabular-nums">
             <JamHidup jamAwal={jamWIB()} />
           </p>
-          <p className="mt-2 text-sm text-white/50">
-            {tanggalWIB()} · Waktu Indonesia Barat
+          <p className="mt-3 flex items-center gap-1.5 text-sm text-white/45">
+            <MapPin className="size-3.5" />
+            Jakarta, Indonesia · WIB
           </p>
         </BlurFade>
 
-        {/* Angka nyata dari ESS. Kalau database tidak terjangkau, seluruh
-            blok ini hilang — bukan menampilkan nol yang menyesatkan. */}
-        <BlurFade delay={0.2} className="relative">
-          {ringkas ? (
-            <div className="flex gap-8 border-t border-white/10 pt-6">
-              <Angka
-                icon={<Clock3 className="size-3.5" />}
-                nilai={ringkas.totalHari}
-                label="presensi tercatat"
-              />
-              <Angka
-                icon={<ShieldCheck className="size-3.5" />}
-                nilai={ringkas.hadir}
-                label="tepat waktu"
-              />
-              {ringkas.streak > 0 && (
-                <Angka
-                  icon={<Flame className="size-3.5" />}
-                  nilai={ringkas.streak}
-                  label="beruntun"
-                />
+        {/* Jejak digital — hanya bagian yang datanya benar-benar ada. */}
+        <BlurFade delay={0.2} className="relative space-y-6">
+          {github && (
+            <div>
+              <div className="mb-2.5 flex items-baseline justify-between">
+                <p className="flex items-center gap-1.5 text-xs text-white/45">
+                  <SiGithub className="size-3.5" />
+                  Kontribusi setahun terakhir
+                </p>
+                <p className="text-xs font-medium tabular-nums text-white/70">
+                  {github.total.toLocaleString("id-ID")}
+                </p>
+              </div>
+              <KontribusiGrid data={github} minggu={22} />
+            </div>
+          )}
+
+          {waka && (
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/10 pt-5">
+              <div>
+                <p className="flex items-center gap-1.5 text-xs text-white/45">
+                  <Code2 className="size-3.5" />
+                  Total ngoding
+                </p>
+                <p className="mt-0.5 text-sm font-medium">{waka.total}</p>
+              </div>
+              {waka.bahasa.length > 0 && (
+                <div className="min-w-0">
+                  <p className="text-xs text-white/45">7 hari terakhir</p>
+                  <p className="mt-0.5 truncate text-sm font-medium">
+                    {waka.bahasa
+                      .map((b) => `${b.nama} ${Math.round(b.persen)}%`)
+                      .join(" · ")}
+                  </p>
+                </div>
               )}
             </div>
-          ) : (
-            <p className="border-t border-white/10 pt-6 text-xs text-white/40">
-              Sistem pencatatan kehadiran internal.
-            </p>
+          )}
+
+          {lagu && (
+            <div className="border-t border-white/10 pt-5">
+              <p className="mb-2.5 text-xs text-white/45">
+                {lagu.sedangDiputar ? "Sedang diputar" : "Terakhir diputar"}
+              </p>
+              <NowPlaying lagu={lagu} />
+            </div>
           )}
         </BlurFade>
       </section>
 
       {/* ── KANAN: form ─────────────────────────────────────────────────── */}
       <section className="relative flex items-center justify-center p-6 sm:p-10">
-        {/* Tekstur tipis, hanya di layar kecil — saat panel kiri tidak ada,
-            latar polos terasa kosong. */}
         <div className="pointer-events-none absolute inset-0 lg:hidden">
           <DotPattern
             width={22}
@@ -108,23 +159,35 @@ export default async function LoginPage() {
         </div>
 
         <BlurFade className="relative w-full max-w-sm">
-          {/* Merek versi ringkas — hanya muncul kalau panel kiri disembunyikan,
-              supaya halaman tetap punya identitas di layar kecil. */}
-          <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-            <div className="flex size-9 items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-800">
-              <Fingerprint className="size-4.5" />
+          {/* Identitas ringkas — hanya di layar kecil, saat panel kiri hilang. */}
+          <div className="mb-8 flex items-center gap-3 lg:hidden">
+            <div className="relative size-11 shrink-0 overflow-hidden rounded-full border border-neutral-200 dark:border-neutral-800">
+              {profil?.foto ? (
+                <Image
+                  src={profil.foto}
+                  alt={profil.nama}
+                  fill
+                  sizes="44px"
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : null}
             </div>
             <div>
-              <p className="text-sm font-semibold leading-tight">Absensi</p>
-              <p className="text-xs text-muted-foreground">Panel pengelolaan</p>
+              <p className="text-sm font-semibold leading-tight">
+                {profil?.nama ?? "Faiz Hazim Hawari"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Fullstack Developer & Designer
+              </p>
             </div>
           </div>
 
           <h1 className="text-3xl font-bold tracking-tight">
-            <ShinyText>Selamat datang</ShinyText>
+            <ShinyText>Halo lagi</ShinyText>
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Masuk untuk mengelola presensi dan otomasinya.
+            Masuk untuk melanjutkan.
           </p>
 
           <div className="mt-8">
@@ -136,42 +199,17 @@ export default async function LoginPage() {
           </div>
 
           <KartuPercobaan />
-
-          <p className="mt-10 text-xs text-muted-foreground">
-            Akses terbatas. Hubungi administrator bila belum punya akun.
-          </p>
         </BlurFade>
       </section>
     </main>
   );
 }
 
-function Angka({
-  icon,
-  nilai,
-  label,
-}: {
-  icon: React.ReactNode;
-  nilai: number;
-  label: string;
-}) {
-  return (
-    <div>
-      <p className="flex items-center gap-1.5 text-2xl font-bold tabular-nums">
-        <span className="text-white/40">{icon}</span>
-        {nilai}
-      </p>
-      <p className="mt-0.5 text-xs text-white/50">{label}</p>
-    </div>
-  );
-}
-
 /**
  * Petunjuk akun percobaan.
  *
- * HANYA tampil saat development. Di production dia hilang total — bukan
- * sekadar disembunyikan dengan CSS, tapi tidak ikut ter-render sama sekali,
- * jadi kredensialnya tidak ada di HTML yang dikirim.
+ * HANYA saat development. Di production tidak ikut ter-render sama sekali,
+ * jadi kredensialnya tidak ada di HTML yang dikirim ke browser.
  */
 function KartuPercobaan() {
   if (process.env.NODE_ENV === "production") return null;
