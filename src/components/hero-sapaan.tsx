@@ -2,6 +2,8 @@ import Image from "next/image";
 import { CalendarOff, Clock } from "lucide-react";
 import BlurFade from "@/components/effects/blur-fade";
 import DotPattern from "@/components/effects/dot-pattern";
+import { ShinyText } from "@/components/effects/shiny-text";
+import { JamHidup } from "@/components/jam-hidup";
 import type { ProfilSaya, BarisPresensi } from "@/services/presensi";
 import { formatJamWIB, keMenit } from "@/services/waktu";
 
@@ -96,8 +98,8 @@ export function HeroSapaan({
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-sm text-muted-foreground">
-              {sapaan(jamSekarang)},
+            <p className="text-sm">
+              <ShinyText>{sapaan(jamSekarang)},</ShinyText>
             </p>
             <h1 className="truncate text-2xl font-bold tracking-tight">
               {namaDepan(profil.nama)}
@@ -109,7 +111,7 @@ export function HeroSapaan({
           <div className="flex items-center gap-2 text-right sm:flex-col sm:items-end sm:gap-0">
             <p className="flex items-center gap-1.5 text-2xl font-bold tabular-nums">
               <Clock className="size-4 text-muted-foreground sm:hidden" />
-              {jamSekarang}
+              <JamHidup jamAwal={jamSekarang} />
             </p>
             <p className="text-xs text-muted-foreground">
               {hari}, {tanggal}

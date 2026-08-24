@@ -364,3 +364,31 @@ dialog[open] {
   max-height: calc(100dvh - 2rem);
 }
 
+
+/* --------------------------------------------------------------------------
+   Warna efek — sengaja MONOKROM.
+
+   BorderBeam dan ShinyText biasanya dipakai dengan gradien warna-warni. Di
+   sini keduanya memakai putih/hitam transparan saja, supaya efeknya terbaca
+   sebagai CAHAYA, bukan sebagai warna merek. Itu yang menjaga desain tetap
+   netral meski ada gerak.
+   -------------------------------------------------------------------------- */
+:root {
+  --beam-from: rgb(0 0 0 / 0.35);
+  --beam-to: rgb(0 0 0 / 0.15);
+  --shine-base: hsl(var(--muted-foreground));
+  --shine-hi: hsl(var(--foreground));
+}
+.dark {
+  /* Di latar gelap, cahaya harus lebih terang dari latarnya. */
+  --beam-from: rgb(255 255 255 / 0.55);
+  --beam-to: rgb(255 255 255 / 0.15);
+}
+
+/* Hormati preferensi pengguna: matikan gerak dekoratif. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-border-beam,
+  .animate-shimmer {
+    animation: none !important;
+  }
+}

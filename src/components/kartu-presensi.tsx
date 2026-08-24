@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ModalJam, type JenisAksi } from "@/components/modal-jam";
 import { ModalUbahJam } from "@/components/modal-ubah-jam";
+import { BorderBeam } from "@/components/effects/border-beam";
 import {
   aksiCheckIn,
   aksiCheckOut,
@@ -91,7 +92,11 @@ export function KartuPresensi({
 
   return (
     <>
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-xs dark:border-neutral-800 dark:bg-neutral-900/50">
+      <div className="relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-6 shadow-xs dark:border-neutral-800 dark:bg-neutral-900/50">
+        {/* Beam hanya saat masih ada yang perlu dikerjakan — begitu presensi
+            hari ini lengkap, kartunya tenang lagi. Satu beam per halaman. */}
+        {!sudahKeluar && <BorderBeam duration={14} size={160} />}
+
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -138,16 +143,27 @@ export function KartuPresensi({
           </div>
         </div>
 
+        {/* Dua angka ini adalah isi utama kartu — dibuat besar supaya
+            terbaca sekilas dari jauh, bukan disamakan dengan label lain. */}
         <div className="mt-6 grid grid-cols-2 gap-4 border-t border-neutral-200 pt-6 dark:border-neutral-800">
           <div>
-            <p className="text-xs text-muted-foreground">Jam masuk</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              Jam masuk
+            </p>
+            <p className="mt-1 text-4xl font-bold tabular-nums tracking-tight sm:text-5xl">
               {formatJamWIB(baris?.jam_masuk)}
             </p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Jam keluar</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              Jam keluar
+            </p>
+            <p
+              className={cn(
+                "mt-1 text-4xl font-bold tabular-nums tracking-tight sm:text-5xl",
+                !baris?.jam_keluar && "text-muted-foreground/40"
+              )}
+            >
               {formatJamWIB(baris?.jam_keluar)}
             </p>
           </div>
