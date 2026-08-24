@@ -4,9 +4,9 @@ import type { Kontribusi } from "@/services/portfolio";
 /**
  * Heatmap kontribusi GitHub, gaya kalender bawaan GitHub tapi monokrom.
  *
- * Warnanya putih transparan bertingkat, bukan hijau — supaya menyatu dengan
- * panel gelap dan tetap terbaca sebagai tekstur, bukan grafik yang menuntut
- * perhatian.
+ * Warnanya memakai `currentColor` dengan opacity bertingkat, bukan hijau —
+ * jadi ikut warna teks induknya dan otomatis benar di terang maupun gelap,
+ * tanpa perlu varian `dark:` sendiri.
  */
 export function KontribusiGrid({
   data,
@@ -32,11 +32,11 @@ export function KontribusiGrid({
   const maks = Math.max(1, ...hari.map((h) => h.jumlah));
 
   const tingkat = (n: number): string => {
-    if (n === 0) return "bg-white/[0.06]";
+    if (n === 0) return "opacity-[0.10]";
     const r = n / maks;
-    if (r > 0.66) return "bg-white/70";
-    if (r > 0.33) return "bg-white/45";
-    return "bg-white/25";
+    if (r > 0.66) return "opacity-90";
+    if (r > 0.33) return "opacity-55";
+    return "opacity-30";
   };
 
   return (
@@ -47,7 +47,10 @@ export function KontribusiGrid({
             <div
               key={h.tanggal}
               title={`${h.tanggal} · ${h.jumlah} kontribusi`}
-              className={cn("size-[9px] rounded-[2px]", tingkat(h.jumlah))}
+              className={cn(
+                "size-[9px] rounded-[2px] bg-current",
+                tingkat(h.jumlah)
+              )}
             />
           ))}
         </div>

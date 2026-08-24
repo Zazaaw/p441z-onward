@@ -16,7 +16,7 @@ import type { Lagu } from "@/services/portfolio";
 export function NowPlaying({ lagu }: { lagu: Lagu }) {
   const isi = (
     <div className="flex items-center gap-3">
-      <div className="relative size-10 shrink-0 overflow-hidden rounded bg-white/10">
+      <div className="relative size-10 shrink-0 overflow-hidden rounded bg-muted">
         {lagu.gambar ? (
           <Image
             src={lagu.gambar}
@@ -28,13 +28,13 @@ export function NowPlaying({ lagu }: { lagu: Lagu }) {
           />
         ) : (
           <span className="flex size-full items-center justify-center">
-            <Music className="size-4 text-white/40" />
+            <Music className="size-4 text-muted-foreground" />
           </span>
         )}
 
         {/* Lencana Spotify di pojok sampul — putarannya memang dari Spotify,
             Last.fm cuma perantara datanya (API playback Spotify butuh Premium). */}
-        <span className="absolute -bottom-0.5 -right-0.5 rounded-full bg-neutral-950 p-[3px]">
+        <span className="absolute -bottom-0.5 -right-0.5 rounded-full bg-background p-[3px]">
           <SiSpotify className="size-3 text-[#1DB954]" />
         </span>
       </div>
@@ -54,11 +54,11 @@ export function NowPlaying({ lagu }: { lagu: Lagu }) {
               ))}
             </span>
           ) : null}
-          <p className="truncate text-[13px] font-medium text-white/90">
+          <p className="truncate text-[13px] font-medium text-foreground">
             {lagu.judul}
           </p>
         </div>
-        <p className="truncate text-[11px] text-white/45">{lagu.artis}</p>
+        <p className="truncate text-[11px] text-muted-foreground">{lagu.artis}</p>
       </div>
     </div>
   );
