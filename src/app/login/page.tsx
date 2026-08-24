@@ -46,24 +46,31 @@ export default async function LoginPage() {
         <div className="w-full max-w-sm">
           {/* Identitas ringkas. Di desktop panel kanan sudah memuatnya,
               jadi ini hanya tampil saat panel disembunyikan. */}
-          <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-            <div className="relative size-7 shrink-0 overflow-hidden rounded-full ring-1 ring-neutral-200 dark:ring-neutral-800">
+          <div className="mb-8 flex items-center gap-3 lg:hidden">
+            <div className="relative size-10 shrink-0 overflow-hidden rounded-full ring-1 ring-neutral-200 dark:ring-neutral-800">
               {profil?.foto ? (
                 <Image
                   src={profil.foto}
                   alt={nama}
                   fill
-                  sizes="28px"
+                  sizes="40px"
                   className="object-cover"
                   unoptimized
                 />
               ) : (
-                <span className="flex size-full items-center justify-center bg-muted text-[10px] font-bold">
+                <span className="flex size-full items-center justify-center bg-muted text-xs font-bold">
                   FH
                 </span>
               )}
             </div>
-            <span className="text-base font-semibold">Dashboard Absensi</span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold leading-tight">
+                {nama}
+              </p>
+              <p className="truncate text-xs text-muted-foreground">
+                Fullstack Developer &amp; Designer
+              </p>
+            </div>
           </div>
 
           <h1 className="text-2xl font-bold tracking-tight">

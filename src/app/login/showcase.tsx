@@ -72,29 +72,38 @@ export function Showcase({
 
       <div className="relative flex h-full flex-col justify-between p-10 lg:p-12">
         {/* ── Atas: identitas + titik slide ────────────────────────────── */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5 text-white">
-            <div className="relative size-7 shrink-0 overflow-hidden rounded-full ring-1 ring-white/20">
+        <div className="flex items-start justify-between gap-4">
+          {/* Foto dinaikkan ke 40px dan diberi dua baris teks: di atas foto
+              berlatar, avatar kecil 28px terlalu mudah tenggelam. */}
+          <div className="flex min-w-0 items-center gap-3 text-white">
+            <div className="relative size-10 shrink-0 overflow-hidden rounded-full ring-1 ring-white/25">
               {foto ? (
                 <Image
                   src={foto}
                   alt={nama}
                   fill
-                  sizes="28px"
+                  sizes="40px"
                   className="object-cover"
                   unoptimized
                 />
               ) : (
-                <span className="flex size-full items-center justify-center bg-white/10 text-[10px] font-bold">
+                <span className="flex size-full items-center justify-center bg-white/10 text-xs font-bold">
                   FH
                 </span>
               )}
             </div>
-            <span className="text-sm font-semibold tracking-wide">{nama}</span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold leading-tight tracking-wide">
+                {nama}
+              </p>
+              <p className="truncate text-xs text-white/60">
+                Fullstack Developer &amp; Designer
+              </p>
+            </div>
           </div>
 
           {fotoShowcase.length > 1 ? (
-            <div className="flex gap-1.5">
+            <div className="mt-1.5 flex shrink-0 gap-1.5">
               {fotoShowcase.map((_, i) => (
                 <span
                   key={i}
