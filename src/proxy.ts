@@ -14,6 +14,33 @@ import { NextRequest, NextResponse } from "next/server";
 /** Hanya rute ini yang boleh diakses tanpa sesi. */
 const PUBLIC_ROUTES = ["/login"];
 
+/** Nama cookie sesi. Harus sama dengan di services/auth-dummy.ts. */
+const SESSION_COOKIE = "session";
+
+/**
+ * Baca cookie sesi di Edge runtime.
+ *
+ * Tidak memakai decodeDummySession() dari services/ karena fungsi itu pakai
+ * `Buffer`, yang tidak tersedia di Edge. Di sini pakai atob() bawaan Web API.
+ *
+ * Mengembalikan true bila isinya berbentuk sesi yang masuk akal.
+ */
+function readSession(raw: string | undefined): boolean {
+  if (!raw) return false;
+  try {
+    const parsed = JSON.parse(atob(raw));
+    return (
+      parsed &&
+      typeof parsed.id === "string" &&
+      typeof parsed.email === "string" &&
+      (parsed.role === "admin" || parsed.role === "staff")
+    );
+  } catch {
+    // Bukan base64 valid, atau bukan JSON → anggap tidak ada sesi.
+    return false;
+  }
+}
+
 /** Prefix yang dilewati sepenuhnya (aset & internal Next.js). */
 const BYPASS_PREFIXES = ["/_next", "/favicon.ico", "/icon", "/apple-icon"];
 
@@ -28,17 +55,19 @@ export async function proxy(req: NextRequest) {
     (r) => pathname === r || pathname.startsWith(`${r}/`)
   );
 
-  // ⚠️  SEMENTARA: baru mengecek KEBERADAAN cookie, belum memvalidasi isinya.
+  // Cek sesi: isi cookie harus benar-benar bisa dibaca sebagai user, bukan
+  // sekadar ada. Cookie karangan seperti `session=asal` akan ditolak.
   //
-  //     Ini BELUM aman — siapa pun bisa membuat cookie bernama "session"
-  //     lewat devtools dan lolos. Sebelum dipakai sungguhan, ganti dengan
-  //     verifikasi token ke backend (getSession() di src/services/auth.ts).
+  // ⚠️  DUMMY: ini decode, BUKAN verifikasi. Cookie-nya tidak ditandatangani,
+  //     jadi orang yang tahu formatnya masih bisa membuat sesi palsu.
+  //     Yang asli nanti: verifikasi tanda tangan token (JWT) atau cek session
+  //     id ke database.
   //
-  //     Catatan: middleware berjalan di Edge runtime, jadi library yang
-  //     butuh Node API tidak bisa dipakai di sini. Kalau verifikasinya berat,
-  //     pindahkan ke layout server component dan sisakan middleware untuk
-  //     pengalihan kasar saja.
-  const hasSession = Boolean(req.cookies.get("session")?.value);
+  //     Catatan runtime: proxy berjalan di Edge, jadi library yang butuh Node
+  //     API tidak bisa dipakai di sini. Verifikasi berat sebaiknya di layout
+  //     server component — lapis kedua sudah terpasang di
+  //     src/app/(dashboard)/layout.tsx.
+  const hasSession = Boolean(readSession(req.cookies.get(SESSION_COOKIE)?.value));
 
   if (!hasSession && !isPublic) {
     const url = req.nextUrl.clone();

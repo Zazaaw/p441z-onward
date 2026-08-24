@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
+import { UserMenu } from "@/components/user-menu";
 import { SidebarNav } from "@/components/app-sidebar";
+import type { SessionUser } from "@/services/auth";
 import { cn } from "@/lib/utils";
 
-export function AppHeader() {
+export function AppHeader({ user }: { user: SessionUser }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -32,12 +34,7 @@ export function AppHeader() {
         <div className="flex-1" />
 
         <ModeToggle />
-
-        {/* TODO: tampilkan nama user dari sesi, dan sambungkan ke signOut(). */}
-        <Button variant="ghost" size="sm" disabled title="Menunggu auth">
-          <LogOut />
-          <span className="hidden sm:inline">Keluar</span>
-        </Button>
+        <UserMenu user={user} />
       </header>
 
       {/* Drawer mobile */}

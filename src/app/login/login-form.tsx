@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { signIn } from "@/services/auth";
+import { signInAction } from "@/services/auth-actions";
 
 export function LoginForm() {
   const router = useRouter();
+  const params = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,17 +22,24 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      const result = await signIn(email, password);
+      const result = await signInAction(email, password);
 
       if (!result.ok) {
-        // Pesan sengaja tidak membedakan "email salah" vs "password salah" —
-        // itu membocorkan email mana yang terdaftar.
-        setError(result.message ?? "Email atau kata sandi salah.");
+        setError(result.message);
         return;
       }
 
-      toast.success("Berhasil masuk.");
-      router.replace("/dashboard");
+      toast.success(`Selamat datang, ${result.user.name}.`);
+
+      // Kembalikan ke halaman yang tadi diminta, kalau ada.
+      // Hanya terima path relatif — URL absolut dari query bisa dipakai
+      // untuk open-redirect ke situs lain.
+      const next = params.get("next");
+      const target = next && next.startsWith("/") && !next.startsWith("//")
+        ? next
+        : "/dashboard";
+
+      router.replace(target);
       router.refresh();
     } catch {
       setError("Tidak bisa terhubung ke server. Coba lagi.");
