@@ -40,15 +40,23 @@ export function KontribusiGrid({
   };
 
   return (
-    <div className={cn("flex gap-[3px]", className)}>
+    // Kolomnya melar mengikuti lebar wadah (1fr per minggu) alih-alih dipatok
+    // 9px mati — dengan ukuran tetap, lebar total bergantung jumlah minggu
+    // dan hampir tidak pernah pas dengan tepi wadahnya.
+    <div
+      className={cn("grid w-full gap-[3px]", className)}
+      style={{ gridTemplateColumns: `repeat(${kolom.length}, 1fr)` }}
+    >
       {kolom.map((mgg, i) => (
         <div key={i} className="flex flex-col gap-[3px]">
           {mgg.map((h) => (
             <div
               key={h.tanggal}
               title={`${h.tanggal} · ${h.jumlah} kontribusi`}
+              // aspect-square menjaga kotaknya tetap persegi berapa pun
+              // lebar kolomnya.
               className={cn(
-                "size-[9px] rounded-[2px] bg-current",
+                "aspect-square rounded-[2px] bg-current",
                 tingkat(h.jumlah)
               )}
             />

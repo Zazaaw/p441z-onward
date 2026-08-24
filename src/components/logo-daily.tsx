@@ -9,41 +9,36 @@ import { cn } from "@/lib/utils";
  */
 
 /**
- * Bentuk panjang — tagline tiga baris, untuk layar login dan tempat lain yang
+ * Bentuk panjang — tagline dua baris, untuk layar login dan tempat lain yang
  * punya ruang lega.
  *
- * Ditulis sebagai blok tiga baris dengan leading sangat rapat (0.85) supaya
- * barisnya saling mengunci jadi satu bentuk, bukan tiga kalimat terpisah.
- * "better" dibuat lebih besar dari baris lain: di lockup seperti ini kata
- * italic-nya memang harus menonjol, kalau seukuran sisanya dia cuma terlihat
- * seperti salah ketik.
+ * Dulu tiga baris ("one day / better than / before."), tapi jadi terlalu
+ * menjulang ke bawah dan memaksa ukurannya dikecilkan. Dipadatkan jadi dua
+ * baris supaya hurufnya bisa jauh lebih besar tanpa menambah tinggi.
+ *
+ * Leading 0.82 membuat kedua baris saling mengunci jadi satu bentuk, bukan
+ * dua kalimat terpisah. "better" dibesarkan 1.45em karena kata italic di
+ * lockup seperti ini memang harus mendominasi — kalau seukuran sisanya, ia
+ * cuma terlihat seperti salah ketik.
  */
 export function LogoDailyPanjang({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "inline-block select-none text-left leading-[0.85] tracking-tight",
+        "inline-block select-none text-left leading-[0.82] tracking-tighter",
         className
       )}
       role="img"
-      aria-label="one day better than before"
+      aria-label="one day better"
     >
       <span aria-hidden className="block font-bold">
         one day
       </span>
-      {/* Baris tengah: italic mendominasi, "than" mengekor kecil di sisinya —
-          persis pola referensi, di mana kata kunci membesar dan kata
-          sambungnya menyusut. */}
-      <span aria-hidden className="block whitespace-nowrap">
-        <span className="font-[family-name:var(--font-editorial)] text-[1.5em] leading-[0.8]">
-          better
-        </span>
-        {/* -ml-[0.06em]: ekor huruf italic menjorok ke kanan, jadi jarak
-            optisnya sudah terisi — tanpa koreksi ini "than" terlihat jauh. */}
-        <span className="-ml-[0.06em] font-bold">than</span>
-      </span>
-      <span aria-hidden className="block font-bold">
-        before.
+      <span
+        aria-hidden
+        className="block font-[family-name:var(--font-editorial)] text-[1.45em] leading-[0.78]"
+      >
+        better
       </span>
     </span>
   );

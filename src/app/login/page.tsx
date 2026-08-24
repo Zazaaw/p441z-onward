@@ -89,14 +89,15 @@ export default async function LoginPage() {
             </span>
           </div>
 
-          {/* Tagline jadi judul visual halaman. "Halo lagi" dilepas: dengan
-              lockup sebesar ini di atasnya, sapaan itu cuma jadi baris
-              tambahan yang melemahkan keduanya. */}
-          <h1 className="mt-6 text-[2rem]">
+          {/* Tagline jadi judul visual halaman. Ukurannya sengaja besar —
+              inilah satu-satunya elemen yang boleh menarik perhatian di
+              sisi ini; sisanya cuma form. clamp() menahannya agar tidak
+              meluber di layar sempit. */}
+          <h1 className="mt-6 text-[clamp(2.5rem,5.5vw,3.5rem)]">
             <LogoDailyPanjang />
           </h1>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            Masuk untuk mencatat kehadiran dan melihat rekapmu.
+          <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+            Masuk untuk melanjutkan.
           </p>
 
           <div className="mt-6">

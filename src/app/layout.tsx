@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     default: "Daily",
     template: "%s · Daily",
   },
-  description: "Catat kehadiran harian, pantau rekap, semuanya di satu tempat.",
+  description: "Satu hari, satu langkah. Sedikit lebih baik dari kemarin.",
   // Internal tool — jangan diindeks mesin pencari.
   robots: { index: false, follow: false },
 };
