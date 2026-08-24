@@ -52,7 +52,7 @@ export function AppHeader({ user }: { user: SessionUser }) {
             )}
           >
             <div className="mb-6 px-3">
-              <p className="text-sm font-bold">Absensi</p>
+              <p className="text-sm font-bold">Daily</p>
               <p className="text-xs text-muted-foreground">Panel pengelolaan</p>
             </div>
             <SidebarNav onNavigate={() => setOpen(false)} />

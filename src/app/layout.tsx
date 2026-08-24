@@ -8,10 +8,10 @@ const sans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "Dashboard Absensi",
-    template: "%s · Dashboard Absensi",
+    default: "Daily",
+    template: "%s · Daily",
   },
-  description: "Sistem pencatatan dan pembaruan data absensi.",
+  description: "Catat kehadiran harian, pantau rekap, semuanya di satu tempat.",
   // Internal tool — jangan diindeks mesin pencari.
   robots: { index: false, follow: false },
 };

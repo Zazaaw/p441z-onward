@@ -131,7 +131,7 @@ export function Showcase({
               <JamHidup jamAwal={jamAwal} />
             </h2>
             <p className="mt-5 max-w-md text-base leading-relaxed text-white/80">
-              Catat kehadiran, pantau rekap, semuanya di satu tempat.
+              Satu hari, satu catatan. Semua rekapmu tersimpan rapi.
             </p>
           </div>
 

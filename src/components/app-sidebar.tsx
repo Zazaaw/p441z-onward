@@ -82,7 +82,7 @@ export function AppSidebar() {
       )}
     >
       <div className="mb-6 px-3">
-        <p className="text-sm font-bold">Absensi</p>
+        <p className="text-sm font-bold">Daily</p>
         <p className="text-xs text-muted-foreground">Panel pengelolaan</p>
       </div>
       <div className="flex-1 overflow-y-auto">

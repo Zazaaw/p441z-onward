@@ -6,21 +6,15 @@ import { ShinyText } from "@/components/effects/shiny-text";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LoginForm } from "./login-form";
 import { Showcase } from "./showcase";
-import { ShieldCheck } from "lucide-react";
-import { cekHariLibur, presensiHariIni, profilSaya } from "@/services/presensi";
-import { BadgeStatus } from "./badge-status";
+import { MapPin, ShieldCheck } from "lucide-react";
+import { profilSaya } from "@/services/presensi";
 import {
   getFotoShowcase,
   getKontribusiGithub,
   getNowPlaying,
   getWakatime,
 } from "@/services/portfolio";
-import {
-  jamWIB,
-  namaHariWIB,
-  tanggalPanjangWIB,
-  tanggalWIB,
-} from "@/services/waktu";
+import { jamWIB, namaHariWIB, tanggalPanjangWIB } from "@/services/waktu";
 
 export const metadata: Metadata = {
   title: "Masuk",
@@ -34,16 +28,13 @@ export default async function LoginPage() {
   // Semua sumber ditembak berbarengan, dan tiap fungsi sudah menelan
   // kegagalannya sendiri (mengembalikan null), jadi halaman ini tidak akan
   // gagal render walau semua API mati.
-  const [profil, github, waka, lagu, fotoShowcase, presensi, libur] =
-    await Promise.all([
-      profilSaya().catch(() => null),
-      getKontribusiGithub(),
-      getWakatime(),
-      getNowPlaying(),
-      getFotoShowcase(),
-      presensiHariIni().catch(() => null),
-      cekHariLibur(tanggalWIB()).catch(() => ({ libur: false })),
-    ]);
+  const [profil, github, waka, lagu, fotoShowcase] = await Promise.all([
+    profilSaya().catch(() => null),
+    getKontribusiGithub(),
+    getWakatime(),
+    getNowPlaying(),
+    getFotoShowcase(),
+  ]);
 
   const nama = profil?.nama ?? "Faiz Hazim Hawari";
 
@@ -83,15 +74,24 @@ export default async function LoginPage() {
             </div>
           </div>
 
-          {/* Badge status — memberi kabar sebelum login: hari ini libur?
-              sudah absen? jam berapa? */}
-          <BadgeStatus presensi={presensi} libur={libur} />
+          {/* Nama produk — penanda merek di atas judul, bukan kalimat.
+              Titik hijau berdenyut menandakan layanan hidup. */}
+          <div className="flex items-center gap-2">
+            <span className="relative flex size-2">
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+              <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+            </span>
+            <span className="text-sm font-semibold tracking-tight">Daily</span>
+            <span className="text-sm text-muted-foreground">
+              · {namaHariWIB()}
+            </span>
+          </div>
 
-          <h1 className="mt-4 text-2xl font-bold tracking-tight">
+          <h1 className="mt-5 text-3xl font-bold tracking-tight">
             <ShinyText>Halo lagi</ShinyText>
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {namaHariWIB()}, {tanggalPanjangWIB()}.
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Masuk untuk mencatat kehadiran dan melihat rekapmu.
           </p>
 
           <div className="mt-6">
@@ -102,10 +102,14 @@ export default async function LoginPage() {
             </Suspense>
           </div>
 
-          {/* Penutup: keterangan sumber akun. Dipisah garis tipis supaya
-              terbaca sebagai catatan kaki, bukan bagian dari form. */}
-          <div className="mt-8 border-t border-neutral-200 pt-5 dark:border-neutral-800">
-            <p className="flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
+          {/* Penutup: dua keterangan yang benar-benar berguna sebelum
+              login — tanggal berlaku, dan dari mana akunnya berasal. */}
+          <div className="mt-8 space-y-2 border-t border-neutral-200 pt-5 text-xs text-muted-foreground dark:border-neutral-800">
+            <p className="flex items-center gap-1.5">
+              <MapPin className="size-3.5 shrink-0" />
+              {tanggalPanjangWIB()} · zona WIB
+            </p>
+            <p className="flex items-center gap-1.5">
               <ShieldCheck className="size-3.5 shrink-0" />
               Akun dikelola terpusat lewat portfolio.
             </p>
