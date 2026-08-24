@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, LogIn, LogOut, Shuffle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputJam } from "@/components/input-jam";
 import { cn } from "@/lib/utils";
 
 export type JenisAksi = "in" | "out";
@@ -103,14 +103,13 @@ export function ModalJam({
           <label htmlFor="jam" className="text-xs font-medium text-muted-foreground">
             Jam (WIB)
           </label>
-          <Input
+          <InputJam
             id="jam"
-            type="time"
             value={jam}
-            onChange={(e) => setJam(e.target.value)}
+            onChange={setJam}
             disabled={pending}
             autoFocus
-            className="text-lg tabular-nums"
+            className="text-lg"
           />
         </div>
 

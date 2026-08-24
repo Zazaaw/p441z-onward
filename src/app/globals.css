@@ -346,3 +346,21 @@
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--sb-thumb) / 0.5) transparent;
 }
+
+/* --------------------------------------------------------------------------
+   <dialog> — kembalikan posisi tengah.
+
+   Tailwind preflight me-reset margin semua elemen jadi 0, dan itu merusak
+   pemusatan bawaan <dialog> (browser memakai `margin: auto` untuk menaruhnya
+   di tengah). Akibatnya modal nempel di pojok kiri atas.
+
+   inset + margin:auto mengembalikannya, dan max-height menjaga modal tetap
+   muat di layar pendek.
+   -------------------------------------------------------------------------- */
+dialog[open] {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  max-height: calc(100dvh - 2rem);
+}
+

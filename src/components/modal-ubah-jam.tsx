@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Pencil, Eraser } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputJam } from "@/components/input-jam";
 import { cn } from "@/lib/utils";
 
 /**
@@ -100,14 +100,13 @@ export function ModalUbahJam({
             <label htmlFor="ubah-masuk" className="text-xs font-medium text-muted-foreground">
               Jam masuk
             </label>
-            <Input
+            <InputJam
               id="ubah-masuk"
-              type="time"
               value={masuk}
-              onChange={(e) => setMasuk(e.target.value)}
+              onChange={setMasuk}
               disabled={pending}
               autoFocus
-              className="text-lg tabular-nums"
+              className="text-lg"
             />
           </div>
 
@@ -128,13 +127,12 @@ export function ModalUbahJam({
                 </button>
               )}
             </div>
-            <Input
+            <InputJam
               id="ubah-keluar"
-              type="time"
               value={keluar}
-              onChange={(e) => setKeluar(e.target.value)}
+              onChange={setKeluar}
               disabled={pending}
-              className="text-lg tabular-nums"
+              className="text-lg"
             />
           </div>
         </div>
