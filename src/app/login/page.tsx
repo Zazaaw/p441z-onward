@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Suspense } from "react";
-import { Code2, MapPin } from "lucide-react";
-import { SiGithub } from "react-icons/si";
+import { Code2, MapPin, Flame } from "lucide-react";
+import { SiGithub, SiSpotify } from "react-icons/si";
 import BlurFade from "@/components/effects/blur-fade";
 import DotPattern from "@/components/effects/dot-pattern";
 import { ShinyText } from "@/components/effects/shiny-text";
 import { JamHidup } from "@/components/jam-hidup";
 import { KontribusiGrid } from "@/components/kontribusi-grid";
 import { NowPlaying } from "@/components/now-playing";
+import { Bento } from "@/components/bento";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LoginForm } from "./login-form";
 import { profilSaya } from "@/services/presensi";
@@ -17,7 +18,7 @@ import {
   getWakatime,
   getNowPlaying,
 } from "@/services/portfolio";
-import { jamWIB } from "@/services/waktu";
+import { jamWIB, namaHariWIB, tanggalWIB } from "@/services/waktu";
 
 export const metadata: Metadata = {
   title: "Masuk",
@@ -38,110 +39,132 @@ export default async function LoginPage() {
     getNowPlaying(),
   ]);
 
+  const bahasaTeratas = waka?.bahasa[0];
+
   return (
-    <main className="grid min-h-dvh lg:grid-cols-[1.15fr_1fr]">
-      {/* ── KIRI: sisi personal ───────────────────────────────────────────
-          Selalu gelap, tidak ikut tema. Ini "halaman muka" — yang dilihat
-          orang sebelum masuk, jadi isinya siapa aku, bukan aplikasi apa ini. */}
-      <section className="relative hidden overflow-hidden bg-neutral-950 text-white lg:flex lg:flex-col lg:justify-between lg:p-12">
+    <main className="grid min-h-dvh lg:grid-cols-[1.25fr_1fr]">
+      {/* ── KIRI: bento grid ─────────────────────────────────────────────
+          Kartu berukuran berbeda-beda, bukan satu kolom memanjang. Ruang
+          kosong yang tadi menganga jadi terpakai, dan tiap potongan info
+          punya wadahnya sendiri. */}
+      <section className="relative hidden overflow-hidden bg-neutral-950 p-8 text-white lg:block xl:p-10">
         <DotPattern
           width={24}
           height={24}
           cx={1}
           cy={1}
           cr={1}
-          className="text-white/20 [mask-image:radial-gradient(130%_90%_at_20%_10%,white,transparent)]"
+          className="text-white/15 [mask-image:radial-gradient(140%_100%_at_15%_0%,white,transparent)]"
         />
 
-        {/* Identitas */}
-        <BlurFade className="relative">
-          <div className="flex items-center gap-4">
-            <div className="relative size-14 shrink-0 overflow-hidden rounded-full ring-1 ring-white/15">
-              {profil?.foto ? (
-                <Image
-                  src={profil.foto}
-                  alt={profil.nama}
-                  fill
-                  sizes="56px"
-                  className="object-cover"
-                  unoptimized
-                />
-              ) : (
-                <span className="flex size-full items-center justify-center bg-white/10 text-sm font-bold">
-                  FH
-                </span>
-              )}
-            </div>
-            <div>
-              <p className="text-base font-semibold leading-tight">
-                {profil?.nama ?? "Faiz Hazim Hawari"}
-              </p>
-              <p className="text-sm text-white/45">
-                Fullstack Developer & Designer
-              </p>
-            </div>
-          </div>
-        </BlurFade>
-
-        {/* Jam — tetap jadi elemen terbesar. Ini gerbang aplikasi presensi,
-            jadi waktu tetap yang paling penting meski nuansanya personal. */}
-        <BlurFade delay={0.1} className="relative">
-          <p className="text-8xl font-bold leading-none tracking-tighter tabular-nums">
-            <JamHidup jamAwal={jamWIB()} />
-          </p>
-          <p className="mt-3 flex items-center gap-1.5 text-sm text-white/45">
-            <MapPin className="size-3.5" />
-            Jakarta, Indonesia · WIB
-          </p>
-        </BlurFade>
-
-        {/* Jejak digital — hanya bagian yang datanya benar-benar ada. */}
-        <BlurFade delay={0.2} className="relative space-y-6">
-          {github && (
-            <div>
-              <div className="mb-2.5 flex items-baseline justify-between">
-                <p className="flex items-center gap-1.5 text-xs text-white/45">
-                  <SiGithub className="size-3.5" />
-                  Kontribusi setahun terakhir
-                </p>
-                <p className="text-xs font-medium tabular-nums text-white/70">
-                  {github.total.toLocaleString("id-ID")}
-                </p>
-              </div>
-              <KontribusiGrid data={github} minggu={22} />
-            </div>
-          )}
-
-          {waka && (
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/10 pt-5">
-              <div>
-                <p className="flex items-center gap-1.5 text-xs text-white/45">
-                  <Code2 className="size-3.5" />
-                  Total ngoding
-                </p>
-                <p className="mt-0.5 text-sm font-medium">{waka.total}</p>
-              </div>
-              {waka.bahasa.length > 0 && (
+        <BlurFade className="relative h-full">
+          {/* 6 kolom supaya bisa dibagi 2/3/6 — lebih luwes daripada 3 kolom
+              saat menata kartu dengan lebar berbeda. Baris kedua memakai 1fr
+              agar kartu jam memanjang mengisi sisa tinggi layar. */}
+          <div className="grid h-full grid-cols-6 grid-rows-[auto_1fr_auto_auto] gap-3">
+            {/* Identitas — melebar penuh */}
+            <Bento className="col-span-6 p-5">
+              <div className="flex items-center gap-4">
+                <div className="relative size-14 shrink-0 overflow-hidden rounded-full ring-1 ring-white/15">
+                  {profil?.foto ? (
+                    <Image
+                      src={profil.foto}
+                      alt={profil.nama}
+                      fill
+                      sizes="56px"
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <span className="flex size-full items-center justify-center bg-white/10 text-sm font-bold">
+                      FH
+                    </span>
+                  )}
+                </div>
                 <div className="min-w-0">
-                  <p className="text-xs text-white/45">7 hari terakhir</p>
-                  <p className="mt-0.5 truncate text-sm font-medium">
-                    {waka.bahasa
-                      .map((b) => `${b.nama} ${Math.round(b.persen)}%`)
-                      .join(" · ")}
+                  <p className="truncate text-lg font-semibold leading-tight">
+                    {profil?.nama ?? "Faiz Hazim Hawari"}
+                  </p>
+                  <p className="truncate text-sm text-white/45">
+                    Fullstack Developer &amp; Designer
                   </p>
                 </div>
+                <p className="ml-auto hidden shrink-0 items-center gap-1.5 text-xs text-white/40 xl:flex">
+                  <MapPin className="size-3.5" />
+                  Jakarta, ID
+                </p>
+              </div>
+            </Bento>
+
+            {/* Jam — kartu terbesar, mengisi sisa tinggi. Presensi soal waktu,
+                jadi waktu yang paling besar. clamp() supaya ikut menyusut di
+                layar sempit tanpa perlu breakpoint tambahan. */}
+            <Bento className="col-span-4 justify-center p-6">
+              <p className="text-sm text-white/40">{namaHariWIB()}</p>
+              <p className="mt-1 text-[clamp(3.5rem,7vw,6rem)] font-bold leading-none tracking-tighter tabular-nums">
+                <JamHidup jamAwal={jamWIB()} />
+              </p>
+              <p className="mt-2 text-sm text-white/40">{tanggalWIB()} · WIB</p>
+            </Bento>
+
+            {/* Dua kartu angka bertumpuk di samping jam */}
+            <div className="col-span-2 grid grid-rows-2 gap-3">
+              {waka && (
+                <Bento className="justify-center p-5">
+                  <p className="flex items-center gap-1.5 text-xs text-white/40">
+                    <Code2 className="size-3.5" />
+                    Total ngoding
+                  </p>
+                  <p className="mt-1.5 text-2xl font-bold leading-none tracking-tight">
+                    {/* "307 hrs 16 mins" → "307j 16m" agar muat di kartu sempit */}
+                    {waka.total.replace(" hrs", "j").replace(" mins", "m")}
+                  </p>
+                  {bahasaTeratas && (
+                    <p className="mt-1.5 truncate text-xs text-white/40">
+                      {bahasaTeratas.nama} {Math.round(bahasaTeratas.persen)}%
+                    </p>
+                  )}
+                </Bento>
+              )}
+
+              {github && (
+                <Bento className="justify-center p-5">
+                  <p className="flex items-center gap-1.5 text-xs text-white/40">
+                    <Flame className="size-3.5" />
+                    Kontribusi
+                  </p>
+                  <p className="mt-1.5 text-2xl font-bold leading-none tracking-tight tabular-nums">
+                    {github.total.toLocaleString("id-ID")}
+                  </p>
+                  <p className="mt-1.5 text-xs text-white/40">setahun</p>
+                </Bento>
               )}
             </div>
-          )}
 
-          {lagu && (
-            <div className="border-t border-white/10 pt-5">
-              <p className="mb-2.5 text-xs text-white/45">
-                {lagu.sedangDiputar ? "Sedang diputar" : "Terakhir diputar"}
-              </p>
-              <NowPlaying lagu={lagu} />
-            </div>
-          )}
+            {/* Heatmap GitHub — melebar penuh, jadi pita tekstur */}
+            {github && (
+              <Bento className="col-span-6 p-5">
+                <div className="mb-3 flex items-center gap-1.5 text-xs text-white/40">
+                  <SiGithub className="size-3.5" />
+                  Aktivitas GitHub
+                </div>
+                <div className="overflow-hidden">
+                  <KontribusiGrid data={github} minggu={30} />
+                </div>
+              </Bento>
+            )}
+
+            {/* Now playing */}
+            {lagu && (
+              <Bento className="col-span-6 p-5">
+                <p className="mb-3 flex items-center gap-1.5 text-xs text-white/40">
+                  <SiSpotify className="size-3.5 text-[#1DB954]" />
+                  {lagu.sedangDiputar ? "Sedang diputar" : "Terakhir diputar"}
+                </p>
+                <NowPlaying lagu={lagu} />
+              </Bento>
+            )}
+          </div>
         </BlurFade>
       </section>
 
@@ -159,7 +182,7 @@ export default async function LoginPage() {
         </div>
 
         <BlurFade className="relative w-full max-w-sm">
-          {/* Identitas ringkas — hanya di layar kecil, saat panel kiri hilang. */}
+          {/* Identitas ringkas — hanya saat panel kiri disembunyikan */}
           <div className="mb-8 flex items-center gap-3 lg:hidden">
             <div className="relative size-11 shrink-0 overflow-hidden rounded-full border border-neutral-200 dark:border-neutral-800">
               {profil?.foto ? (
@@ -173,12 +196,12 @@ export default async function LoginPage() {
                 />
               ) : null}
             </div>
-            <div>
-              <p className="text-sm font-semibold leading-tight">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold leading-tight">
                 {profil?.nama ?? "Faiz Hazim Hawari"}
               </p>
-              <p className="text-xs text-muted-foreground">
-                Fullstack Developer & Designer
+              <p className="truncate text-xs text-muted-foreground">
+                Fullstack Developer &amp; Designer
               </p>
             </div>
           </div>
@@ -197,7 +220,6 @@ export default async function LoginPage() {
               <LoginForm />
             </Suspense>
           </div>
-
         </BlurFade>
       </section>
     </main>
@@ -208,10 +230,10 @@ function FormSkeleton() {
   return (
     <div className="space-y-4">
       <Skeleton className="h-4 w-14" />
-      <Skeleton className="h-9 w-full" />
+      <Skeleton className="h-11 w-full" />
       <Skeleton className="h-4 w-20" />
-      <Skeleton className="h-9 w-full" />
-      <Skeleton className="h-9 w-full" />
+      <Skeleton className="h-11 w-full" />
+      <Skeleton className="h-11 w-full" />
     </div>
   );
 }
