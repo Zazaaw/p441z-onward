@@ -25,11 +25,6 @@ function sapaan(jam: string): string {
   return "Selamat malam";
 }
 
-/** Ambil nama depan saja — sapaan pakai nama lengkap terasa kaku. */
-function namaDepan(nama: string): string {
-  return nama.split(" ")[0];
-}
-
 /** Inisial untuk fallback kalau foto gagal dimuat. */
 function inisial(nama: string): string {
   const bagian = nama.trim().split(/\s+/);
@@ -76,22 +71,22 @@ export function HeroSapaan({
           className="text-neutral-400/50 [mask-image:linear-gradient(to_left,white,transparent_60%)]"
         />
 
-        <div className="relative flex flex-wrap items-center gap-5 p-6">
+        <div className="relative flex flex-wrap items-center gap-6 p-6 sm:p-8">
           {/* Foto profil dari ESS */}
-          <div className="relative size-16 shrink-0 overflow-hidden rounded-full border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800">
+          <div className="relative size-24 shrink-0 overflow-hidden rounded-full border border-neutral-200 bg-neutral-100 sm:size-28 dark:border-neutral-700 dark:bg-neutral-800">
             {profil.foto ? (
               <Image
                 src={profil.foto}
                 alt={profil.nama}
                 fill
-                sizes="64px"
+                sizes="(min-width: 640px) 112px, 96px"
                 className="object-cover"
                 // Foto ESS bisa saja dihapus/diganti; jangan sampai
                 // seluruh hero gagal render karenanya.
                 unoptimized
               />
             ) : (
-              <span className="flex size-full items-center justify-center text-lg font-bold text-muted-foreground">
+              <span className="flex size-full items-center justify-center text-2xl font-bold text-muted-foreground">
                 {inisial(profil.nama)}
               </span>
             )}
@@ -101,8 +96,8 @@ export function HeroSapaan({
             <p className="text-sm">
               <ShinyText>{sapaan(jamSekarang)},</ShinyText>
             </p>
-            <h1 className="truncate text-2xl font-bold tracking-tight">
-              {namaDepan(profil.nama)}
+            <h1 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+              {profil.nama}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">{ringkasan}</p>
           </div>

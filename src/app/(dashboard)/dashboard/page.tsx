@@ -5,7 +5,6 @@ import BlurFade from "@/components/effects/blur-fade";
 import Typography from "@/components/ui/typography";
 import { KartuPresensi } from "@/components/kartu-presensi";
 import { HeroSapaan } from "@/components/hero-sapaan";
-import { SparklinePresensi } from "@/components/sparkline-presensi";
 import { NumberTicker } from "@/components/effects/number-ticker";
 import {
   presensiHariIni,
@@ -95,17 +94,6 @@ export default async function DashboardPage() {
           />
         </div>
 
-        <div className="mt-6 border-t border-neutral-200 pt-5 dark:border-neutral-800">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">
-              Pola kehadiran
-            </p>
-            <p className="text-[11px] text-muted-foreground">
-              tinggi = lama kerja · pudar = belum check-out
-            </p>
-          </div>
-          <SparklinePresensi data={riwayat} />
-        </div>
       </div>
 
       <Typography.H4 className="mb-3 mt-10">Presensi terakhir</Typography.H4>
