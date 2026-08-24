@@ -71,97 +71,106 @@ export default async function LoginPage() {
       {/* Konten harus di atas lapisan pola */}
       <div className="relative z-20 grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
         {/* ── KIRI: sisi personal ─────────────────────────────────────────
-            Tidak lagi berlatar hitam pekat — cukup pembatas tipis di kanan,
-            supaya pola latar mengalir menembus kedua sisi sebagai satu
-            kesatuan, persis seperti halaman portfolio. */}
-        <section className="hidden flex-col justify-between border-r border-neutral-200 p-10 lg:flex xl:p-14 dark:border-neutral-800">
-          {/* Identitas */}
+            Disusun terpusat (justify-center), BUKAN justify-between.
+            Sebelumnya isi tersebar ke ujung atas-bawah sehingga jam melayang
+            sendirian dengan lubang kosong besar di sekitarnya. Sekarang semua
+            elemen berkumpul sebagai satu blok dengan ritme rapat, dan ruang
+            kosong dibiarkan di luar blok — itu yang bikin terbaca sengaja. */}
+        <section className="relative hidden flex-col justify-center border-r border-neutral-200 p-10 lg:flex xl:p-16 dark:border-neutral-800">
+          {/* Identitas — kecil di atas, sebagai pembuka */}
           <BlurFade>
-            <div className="flex items-center gap-4">
-              <div className="relative size-14 shrink-0 overflow-hidden rounded-full ring-1 ring-neutral-200 dark:ring-neutral-800">
+            <div className="flex items-center gap-3">
+              <div className="relative size-11 shrink-0 overflow-hidden rounded-full ring-1 ring-neutral-200 dark:ring-neutral-800">
                 {profil?.foto ? (
                   <Image
                     src={profil.foto}
                     alt={profil.nama}
                     fill
-                    sizes="56px"
+                    sizes="44px"
                     className="object-cover"
                     unoptimized
                   />
                 ) : (
-                  <span className="flex size-full items-center justify-center bg-muted text-sm font-bold">
+                  <span className="flex size-full items-center justify-center bg-muted text-xs font-bold">
                     FH
                   </span>
                 )}
               </div>
               <div className="min-w-0">
-                <p className="truncate text-lg font-semibold leading-tight">
+                <p className="truncate text-sm font-semibold leading-tight">
                   {profil?.nama ?? "Faiz Hazim Hawari"}
                 </p>
-                <p className="truncate text-sm text-muted-foreground">
+                <p className="truncate text-xs text-muted-foreground">
                   Fullstack Developer &amp; Designer
                 </p>
               </div>
             </div>
           </BlurFade>
 
-          {/* Jam — elemen terbesar. Presensi soal waktu. */}
-          <BlurFade delay={0.1}>
-            <p className="text-sm text-muted-foreground">{namaHariWIB()}</p>
-            <p className="mt-1 text-[clamp(4rem,9vw,7.5rem)] font-bold leading-none tracking-tighter tabular-nums">
+          {/* Jam — puncak hierarki. Jaraknya ke identitas sengaja rapat
+              (mt-10) supaya keduanya terbaca satu kelompok. */}
+          <BlurFade delay={0.08} className="mt-10">
+            <p className="text-sm text-muted-foreground">
+              {namaHariWIB()}, {tanggalWIB()}
+            </p>
+            <p className="mt-2 text-[clamp(4.5rem,10vw,8rem)] font-bold leading-[0.85] tracking-tighter tabular-nums">
               <JamHidup jamAwal={jamWIB()} />
             </p>
-            <p className="mt-3 flex items-center gap-1.5 text-sm text-muted-foreground">
+            <p className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground">
               <MapPin className="size-3.5" />
-              {tanggalWIB()} · Jakarta, WIB
+              Jakarta, Indonesia · WIB
             </p>
           </BlurFade>
 
-          {/* Jejak digital — dipisah garis tipis, bukan kotak-kotak */}
-          <BlurFade delay={0.2} className="space-y-5">
+          {/* Jejak digital — satu baris ringkas berisi angka, bukan tumpukan
+              blok. Angka yang berdampingan lebih mudah dibandingkan daripada
+              yang bertumpuk. */}
+          <BlurFade delay={0.16} className="mt-12">
+            <div className="flex flex-wrap items-end gap-x-10 gap-y-5">
+              {github && (
+                <Statistik
+                  ikon={<SiGithub className="size-3.5" />}
+                  label="kontribusi setahun"
+                  nilai={github.total.toLocaleString("id-ID")}
+                />
+              )}
+              {waka && (
+                <Statistik
+                  ikon={<Code2 className="size-3.5" />}
+                  label={
+                    waka.bahasa[0]
+                      ? `${waka.bahasa[0].nama} ${Math.round(waka.bahasa[0].persen)}%`
+                      : "total ngoding"
+                  }
+                  nilai={waka.total.replace(" hrs", "j").replace(" mins", "m")}
+                />
+              )}
+            </div>
+
+            {/* Heatmap jadi pita tipis di bawah angka — perannya tekstur
+                pendukung, bukan grafik utama. */}
             {github && (
-              <div>
-                <div className="mb-2.5 flex items-baseline justify-between">
-                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <SiGithub className="size-3.5" />
-                    Kontribusi setahun terakhir
-                  </p>
-                  <p className="text-xs font-medium tabular-nums">
-                    {github.total.toLocaleString("id-ID")}
-                  </p>
-                </div>
-                <KontribusiGrid data={github} minggu={26} />
-              </div>
-            )}
-
-            {waka && (
-              <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 border-t border-neutral-200 pt-5 dark:border-neutral-800">
-                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Code2 className="size-3.5" />
-                  Total ngoding
-                </p>
-                <p className="text-sm font-medium">{waka.total}</p>
-                {waka.bahasa.length > 0 && (
-                  <p className="truncate text-xs text-muted-foreground">
-                    {waka.bahasa
-                      .slice(0, 3)
-                      .map((b) => `${b.nama} ${Math.round(b.persen)}%`)
-                      .join(" · ")}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {lagu && (
-              <div className="border-t border-neutral-200 pt-5 dark:border-neutral-800">
-                <p className="mb-2.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <SiSpotify className="size-3.5 text-[#1DB954]" />
-                  {lagu.sedangDiputar ? "Sedang diputar" : "Terakhir diputar"}
-                </p>
-                <NowPlaying lagu={lagu} />
+              <div className="mt-6 border-t border-neutral-200 pt-6 dark:border-neutral-800">
+                <KontribusiGrid data={github} minggu={28} />
               </div>
             )}
           </BlurFade>
+
+          {/* Now playing — ditempel di dasar panel, terpisah dari blok utama.
+              Ini "denyut latar", bukan bagian dari perkenalan. */}
+          {lagu && (
+            <BlurFade
+              delay={0.24}
+              className="absolute inset-x-10 bottom-10 xl:inset-x-16 xl:bottom-12"
+            >
+              <div className="flex items-center gap-3">
+                <SiSpotify className="size-4 shrink-0 text-[#1DB954]" />
+                <div className="min-w-0 flex-1">
+                  <NowPlaying lagu={lagu} />
+                </div>
+              </div>
+            </BlurFade>
+          )}
         </section>
 
         {/* ── KANAN: form ───────────────────────────────────────────────── */}
@@ -209,6 +218,34 @@ export default async function LoginPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+/**
+ * Satu angka di panel kiri.
+ *
+ * Angka dulu, label belakangan — mata menangkap angkanya lebih cepat kalau
+ * dia yang paling menonjol, bukan keterangannya.
+ */
+function Statistik({
+  ikon,
+  nilai,
+  label,
+}: {
+  ikon: React.ReactNode;
+  nilai: string;
+  label: string;
+}) {
+  return (
+    <div>
+      <p className="text-2xl font-bold leading-none tracking-tight tabular-nums">
+        {nilai}
+      </p>
+      <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+        {ikon}
+        {label}
+      </p>
+    </div>
   );
 }
 

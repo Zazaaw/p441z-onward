@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { Music } from "lucide-react";
-import { SiSpotify } from "react-icons/si";
 import type { Lagu } from "@/services/portfolio";
 
 /**
@@ -32,11 +31,6 @@ export function NowPlaying({ lagu }: { lagu: Lagu }) {
           </span>
         )}
 
-        {/* Lencana Spotify di pojok sampul — putarannya memang dari Spotify,
-            Last.fm cuma perantara datanya (API playback Spotify butuh Premium). */}
-        <span className="absolute -bottom-0.5 -right-0.5 rounded-full bg-background p-[3px]">
-          <SiSpotify className="size-3 text-[#1DB954]" />
-        </span>
       </div>
 
       <div className="min-w-0 flex-1">
