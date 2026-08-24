@@ -2,11 +2,8 @@
 
 import { cookies } from "next/headers";
 import type { SessionUser } from "./auth";
-import {
-  SESSION_COOKIE,
-  matchDummyAccount,
-  encodeDummySession,
-} from "./auth-dummy";
+import { SESSION_COOKIE, encodeSession } from "./sesi";
+import { masukPortfolio } from "./portfolio-auth";
 
 /* ==========================================================================
  *  Server actions untuk auth.
@@ -14,11 +11,11 @@ import {
  *  Kenapa server action, bukan set cookie dari client?
  *  Karena cookie sesi harus httpOnly — supaya tidak bisa dibaca JavaScript
  *  (perlindungan dasar terhadap XSS). Cookie httpOnly HANYA bisa di-set dari
- *  server. Itu sebabnya login memanggil action ini, bukan document.cookie.
+ *  server.
  *
- *  ⚠️  Isi fungsinya masih memakai DUMMY. Struktur file ini sudah benar dan
- *      bisa dipertahankan — nanti tinggal ganti bagian dalamnya dengan
- *      panggilan ke backend asli.
+ *  Identitas diverifikasi ke Supabase PORTFOLIO. NIK yang dipakai untuk
+ *  presensi TIDAK diambil dari hasil login — melainkan dari env AGHRIS_NIK.
+ *  Jadi login hanya menjawab "boleh masuk atau tidak", bukan "presensi siapa".
  * ========================================================================== */
 
 export type SignInActionResult =
@@ -29,27 +26,27 @@ export async function signInAction(
   email: string,
   password: string
 ): Promise<SignInActionResult> {
-  // Jeda kecil supaya loading state terlihat — dummy ini instan, yang asli
-  // nanti punya latensi jaringan sendiri. Hapus saat backend masuk.
-  await new Promise((r) => setTimeout(r, 400));
+  const hasil = await masukPortfolio(email, password);
 
-  // ── DUMMY: ganti dengan panggilan backend ──
-  const user = matchDummyAccount(email, password);
-  // ───────────────────────────────────────────
-
-  if (!user) {
-    // Pesan sengaja samar — tidak membedakan email salah vs password salah,
-    // karena itu membocorkan email mana yang terdaftar.
-    return { ok: false, message: "Email atau kata sandi salah." };
+  if (!hasil.ok) {
+    return { ok: false, message: hasil.pesan };
   }
 
+  const user: SessionUser = {
+    id: hasil.email,
+    email: hasil.email,
+    name: hasil.nama,
+    role: "admin",
+    foto: hasil.foto,
+  };
+
   const store = await cookies();
-  store.set(SESSION_COOKIE, encodeDummySession(user), {
+  store.set(SESSION_COOKIE, encodeSession(user), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 8, // 8 jam — sesi kerja, bukan "ingat saya"
+    maxAge: 60 * 60 * 12, // 12 jam — sesi kerja, bukan "ingat saya"
   });
 
   return { ok: true, user };

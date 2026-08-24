@@ -198,31 +198,9 @@ export default async function LoginPage() {
             </Suspense>
           </div>
 
-          <KartuPercobaan />
         </BlurFade>
       </section>
     </main>
-  );
-}
-
-/**
- * Petunjuk akun percobaan.
- *
- * HANYA saat development. Di production tidak ikut ter-render sama sekali,
- * jadi kredensialnya tidak ada di HTML yang dikirim ke browser.
- */
-function KartuPercobaan() {
-  if (process.env.NODE_ENV === "production") return null;
-
-  return (
-    <div className="mt-6 rounded-lg border border-dashed border-neutral-300 p-3 dark:border-neutral-700">
-      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-        Mode pengembangan
-      </p>
-      <p className="mt-1.5 font-mono text-[11px] text-muted-foreground">
-        admin@absensi.test · admin123
-      </p>
-    </div>
   );
 }
 

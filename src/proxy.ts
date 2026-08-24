@@ -14,13 +14,13 @@ import { NextRequest, NextResponse } from "next/server";
 /** Hanya rute ini yang boleh diakses tanpa sesi. */
 const PUBLIC_ROUTES = ["/login"];
 
-/** Nama cookie sesi. Harus sama dengan di services/auth-dummy.ts. */
+/** Nama cookie sesi. Harus sama dengan di services/sesi.ts. */
 const SESSION_COOKIE = "session";
 
 /**
  * Baca cookie sesi di Edge runtime.
  *
- * Tidak memakai decodeDummySession() dari services/ karena fungsi itu pakai
+ * Tidak memakai decodeSession() dari services/sesi.ts karena fungsi itu pakai
  * `Buffer`, yang tidak tersedia di Edge. Di sini pakai atob() bawaan Web API.
  *
  * Mengembalikan true bila isinya berbentuk sesi yang masuk akal.
