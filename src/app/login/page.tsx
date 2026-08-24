@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Suspense } from "react";
 import BlurFade from "@/components/effects/blur-fade";
-import { ShinyText } from "@/components/effects/shiny-text";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LogoDaily } from "@/components/logo-daily";
+import { LogoDaily, LogoDailyPanjang } from "@/components/logo-daily";
 import { LoginForm } from "./login-form";
 import { Showcase } from "./showcase";
 import { MapPin, ShieldCheck } from "lucide-react";
@@ -78,23 +77,25 @@ export default async function LoginPage() {
             </div>
           </div>
 
-          {/* Nama produk — penanda merek di atas judul, bukan kalimat.
-              Titik hijau berdenyut menandakan layanan hidup. */}
+          {/* Penanda merek kecil — nama produk + hari, sebagai pembuka. */}
           <div className="flex items-center gap-2">
             <span className="relative flex size-2">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-60" />
               <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
             </span>
-            <LogoDaily className="text-base" />
+            <LogoDaily className="text-sm" />
             <span className="text-sm text-muted-foreground">
               · {namaHariWIB()}
             </span>
           </div>
 
-          <h1 className="mt-5 text-3xl font-bold tracking-tight">
-            <ShinyText>Halo lagi</ShinyText>
+          {/* Tagline jadi judul visual halaman. "Halo lagi" dilepas: dengan
+              lockup sebesar ini di atasnya, sapaan itu cuma jadi baris
+              tambahan yang melemahkan keduanya. */}
+          <h1 className="mt-6 text-[2rem]">
+            <LogoDailyPanjang />
           </h1>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             Masuk untuk mencatat kehadiran dan melihat rekapmu.
           </p>
 

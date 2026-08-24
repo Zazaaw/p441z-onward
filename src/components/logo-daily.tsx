@@ -1,22 +1,63 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Logo typeface "Daily" — mixed-typeface lockup.
+ * Logo "Daily" — dua bentuk, satu keluarga rasa huruf.
  *
- * Namanya dibelah dua: "Dai" memakai sans bold (Plus Jakarta Sans, font
- * badan), "ly" memakai serif italic (PT Serif). Kontras dua rasa huruf dalam
- * satu kata inilah yang jadi bentuk logonya — tidak perlu ikon.
+ * Keduanya memakai mixed-typeface lockup: sans bold (Plus Jakarta Sans)
+ * disandingkan serif italic (Times Ten). Kontras dua rasa huruf itulah yang
+ * jadi bentuk logonya — tidak perlu ikon.
+ */
+
+/**
+ * Bentuk panjang — tagline tiga baris, untuk layar login dan tempat lain yang
+ * punya ruang lega.
  *
- * Titik belahnya jatuh setelah "Dai" supaya ekor italic mendarat di dua huruf
+ * Ditulis sebagai blok tiga baris dengan leading sangat rapat (0.85) supaya
+ * barisnya saling mengunci jadi satu bentuk, bukan tiga kalimat terpisah.
+ * "better" dibuat lebih besar dari baris lain: di lockup seperti ini kata
+ * italic-nya memang harus menonjol, kalau seukuran sisanya dia cuma terlihat
+ * seperti salah ketik.
+ */
+export function LogoDailyPanjang({ className }: { className?: string }) {
+  return (
+    <span
+      className={cn(
+        "inline-block select-none text-left leading-[0.85] tracking-tight",
+        className
+      )}
+      role="img"
+      aria-label="one day better than before"
+    >
+      <span aria-hidden className="block font-bold">
+        one day
+      </span>
+      {/* Baris tengah: italic mendominasi, "than" mengekor kecil di sisinya —
+          persis pola referensi, di mana kata kunci membesar dan kata
+          sambungnya menyusut. */}
+      <span aria-hidden className="block whitespace-nowrap">
+        <span className="font-[family-name:var(--font-editorial)] text-[1.5em] leading-[0.8]">
+          better
+        </span>
+        {/* -ml-[0.06em]: ekor huruf italic menjorok ke kanan, jadi jarak
+            optisnya sudah terisi — tanpa koreksi ini "than" terlihat jauh. */}
+        <span className="-ml-[0.06em] font-bold">than</span>
+      </span>
+      <span aria-hidden className="block font-bold">
+        before.
+      </span>
+    </span>
+  );
+}
+
+/**
+ * Bentuk pendek — satu kata, untuk header, sidebar, dan ruang sempit.
+ *
+ * Belahannya jatuh setelah "Dai" supaya ekor italic mendarat di dua huruf
  * terakhir; membelah di tengah ("Da|ily") membuat bagian italic terlalu
- * dominan dan namanya jadi sulit terbaca sebagai satu kata.
- *
- * Serif-nya Times Ten Italic — font yang sama dengan yang dipakai portfolio,
- * jadi kedua situs berbagi rasa huruf yang identik.
+ * dominan dan namanya sulit terbaca sebagai satu kata.
  */
 export function LogoDaily({
   className,
-  /** Beri nilai bila logo berdiri sendiri tanpa teks pendamping. */
   title,
 }: {
   className?: string;
@@ -28,7 +69,6 @@ export function LogoDaily({
         "inline-flex select-none items-baseline tracking-tight",
         className
       )}
-      // Dibaca sebagai satu kata utuh oleh pembaca layar, bukan dua potongan.
       role="img"
       aria-label={title ?? "Daily"}
     >
@@ -37,8 +77,7 @@ export function LogoDaily({
       </span>
       {/* File fontnya SUDAH italic, jadi jangan tambah class `italic` lagi —
           browser akan memiringkannya sekali lagi secara sintetis dan hasilnya
-          terlalu rebah. -ml-[0.03em] merapatkan sambungan, karena huruf
-          miring membuka ruang optis di sisi kirinya. */}
+          terlalu rebah. */}
       <span
         aria-hidden
         className="-ml-[0.03em] font-[family-name:var(--font-editorial)]"
