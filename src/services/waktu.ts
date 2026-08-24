@@ -20,6 +20,21 @@ export function tanggalWIB(now = new Date()): string {
   }).format(now);
 }
 
+/**
+ * Tanggal WIB dalam bentuk yang enak dibaca: "24 Agustus 2026".
+ *
+ * `tanggalWIB()` sengaja tetap ISO karena dipakai sebagai kunci query ke
+ * database; yang ini khusus untuk ditampilkan.
+ */
+export function tanggalPanjangWIB(now = new Date()): string {
+  return new Intl.DateTimeFormat("id-ID", {
+    timeZone: WIB,
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(now);
+}
+
 /** Jam:menit sekarang di WIB, format HH:MM. */
 export function jamWIB(now = new Date()): string {
   return new Intl.DateTimeFormat("en-GB", {

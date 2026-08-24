@@ -6,14 +6,21 @@ import { ShinyText } from "@/components/effects/shiny-text";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LoginForm } from "./login-form";
 import { Showcase } from "./showcase";
-import { profilSaya } from "@/services/presensi";
+import { ShieldCheck } from "lucide-react";
+import { cekHariLibur, presensiHariIni, profilSaya } from "@/services/presensi";
+import { BadgeStatus } from "./badge-status";
 import {
   getFotoShowcase,
   getKontribusiGithub,
   getNowPlaying,
   getWakatime,
 } from "@/services/portfolio";
-import { jamWIB, namaHariWIB, tanggalWIB } from "@/services/waktu";
+import {
+  jamWIB,
+  namaHariWIB,
+  tanggalPanjangWIB,
+  tanggalWIB,
+} from "@/services/waktu";
 
 export const metadata: Metadata = {
   title: "Masuk",
@@ -27,13 +34,16 @@ export default async function LoginPage() {
   // Semua sumber ditembak berbarengan, dan tiap fungsi sudah menelan
   // kegagalannya sendiri (mengembalikan null), jadi halaman ini tidak akan
   // gagal render walau semua API mati.
-  const [profil, github, waka, lagu, fotoShowcase] = await Promise.all([
-    profilSaya().catch(() => null),
-    getKontribusiGithub(),
-    getWakatime(),
-    getNowPlaying(),
-    getFotoShowcase(),
-  ]);
+  const [profil, github, waka, lagu, fotoShowcase, presensi, libur] =
+    await Promise.all([
+      profilSaya().catch(() => null),
+      getKontribusiGithub(),
+      getWakatime(),
+      getNowPlaying(),
+      getFotoShowcase(),
+      presensiHariIni().catch(() => null),
+      cekHariLibur(tanggalWIB()).catch(() => ({ libur: false })),
+    ]);
 
   const nama = profil?.nama ?? "Faiz Hazim Hawari";
 
@@ -73,11 +83,15 @@ export default async function LoginPage() {
             </div>
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight">
+          {/* Badge status — memberi kabar sebelum login: hari ini libur?
+              sudah absen? jam berapa? */}
+          <BadgeStatus presensi={presensi} libur={libur} />
+
+          <h1 className="mt-4 text-2xl font-bold tracking-tight">
             <ShinyText>Halo lagi</ShinyText>
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Masuk untuk melanjutkan ke dashboard.
+            {namaHariWIB()}, {tanggalPanjangWIB()}.
           </p>
 
           <div className="mt-6">
@@ -88,9 +102,14 @@ export default async function LoginPage() {
             </Suspense>
           </div>
 
-          <p className="mt-8 text-center text-xs text-muted-foreground">
-            Akun dikelola terpusat. Hubungi admin bila lupa kata sandi.
-          </p>
+          {/* Penutup: keterangan sumber akun. Dipisah garis tipis supaya
+              terbaca sebagai catatan kaki, bukan bagian dari form. */}
+          <div className="mt-8 border-t border-neutral-200 pt-5 dark:border-neutral-800">
+            <p className="flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
+              <ShieldCheck className="size-3.5 shrink-0" />
+              Akun dikelola terpusat lewat portfolio.
+            </p>
+          </div>
         </div>
       </BlurFade>
 
@@ -101,7 +120,7 @@ export default async function LoginPage() {
           nama={nama}
           jamAwal={jamWIB()}
           hari={namaHariWIB()}
-          tanggal={tanggalWIB()}
+          tanggal={tanggalPanjangWIB()}
           fotoShowcase={fotoShowcase}
           github={github}
           waka={waka}
