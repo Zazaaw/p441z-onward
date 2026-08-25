@@ -41,35 +41,32 @@ export default async function LoginPage() {
   const nama = profil?.nama ?? "Faiz Hazim Hawari";
 
   return (
-    // 40/60 — panel foto di kanan sengaja dapat porsi lebih besar; dialah
-    // yang membawa warna dan gerak, jadi lebih pantas mendominasi daripada
-    // sisi form. Sisi kiri masih cukup untuk dua kolomnya, hanya saja kedua
-    // kolom itu runtuh jadi satu tumpukan lebih awal (di bawah xl).
+    // 40/60 — panel foto dapat porsi lebih besar; dialah yang membawa warna
+    // dan gerak. Sisi kiri kini satu kolom terpusat selebar 22rem, jadi
+    // lebar sisanya memang tidak dibutuhkan isinya.
     <div className="grid min-h-dvh w-full grid-cols-1 lg:grid-cols-[2fr_3fr]">
       {/* ── KIRI ─────────────────────────────────────────────────────────
-          Isinya dibagi DUA KOLOM di dalam sisi ini sendiri: tagline besar
-          di kolom kiri, form di kolom kanan, keduanya rata tengah secara
-          vertikal.
+          Satu kolom sempit, rata tengah, semuanya menumpuk rapat:
+          merek -> tagline -> kutipan -> form -> catatan kaki.
 
-          Susunan sebelumnya menumpuk semuanya dalam satu kolom sempit —
-          tagline 6,5rem lalu form 380px tepat di bawahnya — sehingga ada
-          tebing lebar antara keduanya dan sisi kanan menganga kosong.
-          Dengan dua kolom, ruang itu terpakai oleh form, bukan dibiarkan
-          menganga, dan tagline tidak perlu lagi ditarik sebesar mungkin
-          demi menutupi kekosongan. */}
-      <div className="relative flex min-h-dvh flex-col px-6 py-8 sm:px-10 lg:px-12 xl:px-16">
+          Susunan dua kolom sebelumnya membuat tagline dan form saling
+          menjauh, dengan lubang besar di atas dan bawahnya. Di sini semua
+          elemen berbagi satu sumbu tengah dan jarak antar elemen dijaga
+          kecil, sehingga blok ini terbaca sebagai SATU kesatuan padat —
+          ruang kosong dibiarkan mengelilinginya, bukan menembusnya. */}
+      <div className="relative flex min-h-dvh items-center justify-center px-6 py-10 sm:px-10">
         <DotPattern
           width={22}
           height={22}
           cx={1}
           cy={1}
           cr={1}
-          className="pointer-events-none absolute inset-0 -z-10 opacity-60 [mask-image:radial-gradient(75%_65%_at_15%_20%,white,transparent)]"
+          className="pointer-events-none absolute inset-0 -z-10 opacity-60 [mask-image:radial-gradient(65%_55%_at_50%_45%,white,transparent)]"
         />
 
-        {/* ── Atas: merek + tanggal ─────────────────────────────────────── */}
-        <BlurFade className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+        <BlurFade className="w-full max-w-[22rem] text-center">
+          {/* Merek */}
+          <div className="flex items-center justify-center gap-2">
             <span className="relative flex size-2.5">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-60" />
               <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500" />
@@ -77,88 +74,39 @@ export default async function LoginPage() {
             <LogoOnward className="text-lg" />
           </div>
 
-          <span className="hidden text-sm text-muted-foreground lg:inline">
-            {namaHariWIB()}, {tanggalPanjangWIB()}
-          </span>
+          {/* Tagline. Ukurannya ditahan jauh lebih kecil dari sebelumnya:
+              dalam kolom selebar ini, huruf raksasa akan pecah jadi banyak
+              baris dan justru merusak kepadatan blok. */}
+          <h1 className="mt-7 text-[clamp(2.5rem,4vw,3.25rem)]">
+            <LogoOnwardPanjang className="text-center" />
+          </h1>
 
-          <div className="flex items-center gap-2.5 lg:hidden">
-            <div className="min-w-0 text-right">
-              <p className="truncate text-xs font-semibold leading-tight">
-                {nama}
-              </p>
-              <p className="truncate text-[11px] text-muted-foreground">
-                Fullstack Developer &amp; Designer
-              </p>
-            </div>
-            <div className="relative size-8 shrink-0 overflow-hidden rounded-full ring-1 ring-neutral-200 dark:ring-neutral-800">
-              {profil?.foto ? (
-                <Image
-                  src={profil.foto}
-                  alt={nama}
-                  fill
-                  sizes="32px"
-                  className="object-cover"
-                  unoptimized
-                />
-              ) : (
-                <span className="flex size-full items-center justify-center bg-muted text-[10px] font-bold">
-                  FH
-                </span>
-              )}
-            </div>
+          {/* Kutipan menggantikan peran deskripsi — dibiarkan tanpa garis
+              tepi supaya tetap rata tengah bersama yang lain. */}
+          <KutipanHarian className="mx-auto mt-4 max-w-[19rem] text-sm leading-relaxed text-muted-foreground" />
+
+          {/* Form. Label dilepas: dengan susunan setegak ini, urutannya
+              sudah menjelaskan dirinya sendiri. */}
+          <div className="mt-9 text-left">
+            {/* LoginForm membaca ?next= lewat useSearchParams, jadi butuh
+                Suspense boundary agar tetap bisa di-prerender. */}
+            <Suspense fallback={<FormSkeleton />}>
+              <LoginForm />
+            </Suspense>
           </div>
-        </BlurFade>
 
-        {/* ── Tengah: dua kolom berdampingan ─────────────────────────────
-            flex-1 membuat blok ini melahap sisa tinggi, lalu isinya
-            dipusatkan — jadi jaraknya ke merek di atas dan catatan kaki di
-            bawah seimbang dengan sendirinya. */}
-        <div className="flex flex-1 items-center py-10">
-          <div className="grid w-full gap-y-10 2xl:grid-cols-[1fr_auto] 2xl:gap-x-14">
-            {/* Kolom kiri: tagline + kutipan */}
-            <BlurFade delay={0.08} className="self-center">
-              <h1 className="text-[clamp(2.75rem,7.5vw,5rem)]">
-                <LogoOnwardPanjang />
-              </h1>
-
-              <KutipanHarian className="mt-7 max-w-sm border-l-2 border-neutral-300 pl-4 text-muted-foreground dark:border-neutral-700" />
-            </BlurFade>
-
-            {/* Kolom kanan: form.
-                Dengan sisi kiri hanya 40% lebar layar, dua kolom baru muat
-                di 2xl ke atas; di bawah itu keduanya menumpuk. */}
-            <BlurFade
-              delay={0.16}
-              className="w-full max-w-sm self-center 2xl:w-[21rem]"
-            >
-              {/* Pembatas tegak hanya muncul saat benar-benar dua kolom,
-                  sebagai pemisah antara sisi merek dan sisi kerja. */}
-              <div className="2xl:border-l 2xl:border-neutral-200 2xl:pl-14 dark:2xl:border-neutral-800">
-                <p className="mb-6 text-sm font-medium">Masuk ke akunmu</p>
-
-                {/* LoginForm membaca ?next= lewat useSearchParams, jadi
-                    butuh Suspense boundary agar tetap bisa di-prerender. */}
-                <Suspense fallback={<FormSkeleton />}>
-                  <LoginForm />
-                </Suspense>
-              </div>
-            </BlurFade>
+          {/* Catatan kaki ikut masuk ke dalam blok, tidak lagi dipatok di
+              dasar layar — supaya tidak ada elemen yang terpisah jauh. */}
+          <div className="mt-8 border-t border-neutral-200 pt-5 dark:border-neutral-800">
+            <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <ShieldCheck className="size-3.5 shrink-0" />
+              Akun dikelola terpusat lewat portfolio.
+            </p>
+            <p className="mt-1.5 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <MapPin className="size-3.5 shrink-0" />
+              {namaHariWIB()}, {tanggalPanjangWIB()} · WIB
+            </p>
           </div>
-        </div>
-
-        {/* ── Bawah: catatan kaki ───────────────────────────────────────── */}
-        <BlurFade
-          delay={0.24}
-          className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-muted-foreground"
-        >
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck className="size-3.5 shrink-0" />
-            Akun dikelola terpusat lewat portfolio.
-          </span>
-          <span className="flex items-center gap-1.5">
-            <MapPin className="size-3.5 shrink-0" />
-            Jakarta · WIB
-          </span>
         </BlurFade>
       </div>
 

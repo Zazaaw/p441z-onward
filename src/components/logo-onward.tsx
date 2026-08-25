@@ -28,7 +28,7 @@ export function LogoOnwardPanjang({ className }: { className?: string }) {
       // sangat besar, rapat yang sama secara relatif terlihat jauh lebih
       // sempit dan huruf mulai saling tabrak.
       className={cn(
-        "inline-block select-none text-left leading-[0.82] tracking-[-0.03em]",
+        "inline-block select-none leading-[0.82] tracking-[-0.03em]",
         className
       )}
       role="img"
