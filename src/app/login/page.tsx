@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Suspense } from "react";
 import BlurFade from "@/components/effects/blur-fade";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LogoDaily, LogoDailyPanjang } from "@/components/logo-daily";
+import { LogoOnward, LogoOnwardPanjang } from "@/components/logo-onward";
 import { LoginForm } from "./login-form";
 import { Showcase } from "./showcase";
 import { MapPin, ShieldCheck } from "lucide-react";
@@ -83,7 +83,7 @@ export default async function LoginPage() {
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-60" />
               <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
             </span>
-            <LogoDaily className="text-sm" />
+            <LogoOnward className="text-sm" />
             <span className="text-sm text-muted-foreground">
               · {namaHariWIB()}
             </span>
@@ -94,7 +94,7 @@ export default async function LoginPage() {
               sisi ini; sisanya cuma form. clamp() menahannya agar tidak
               meluber di layar sempit. */}
           <h1 className="mt-6 text-[clamp(2.5rem,5.5vw,3.5rem)]">
-            <LogoDailyPanjang />
+            <LogoOnwardPanjang />
           </h1>
           <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
             Masuk untuk melanjutkan.

@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Logo "Daily" — dua bentuk, satu keluarga rasa huruf.
+ * Logo "Onward" — dua bentuk, satu keluarga rasa huruf.
  *
  * Keduanya memakai mixed-typeface lockup: sans bold (Plus Jakarta Sans)
  * disandingkan serif italic (Times Ten). Kontras dua rasa huruf itulah yang
@@ -12,16 +12,16 @@ import { cn } from "@/lib/utils";
  * Bentuk panjang — tagline dua baris, untuk layar login dan tempat lain yang
  * punya ruang lega.
  *
- * Dulu tiga baris ("one day / better than / before."), tapi jadi terlalu
- * menjulang ke bawah dan memaksa ukurannya dikecilkan. Dipadatkan jadi dua
- * baris supaya hurufnya bisa jauh lebih besar tanpa menambah tinggi.
+ * Dua baris: "one day" sans bold, "better" serif italik. Bunyinya menyambung
+ * ke nama produk — Onward, one day better — jadi nama dan tagline saling
+ * menguatkan alih-alih berdiri sendiri-sendiri.
  *
  * Leading 0.82 membuat kedua baris saling mengunci jadi satu bentuk, bukan
  * dua kalimat terpisah. "better" dibesarkan 1.45em karena kata italic di
  * lockup seperti ini memang harus mendominasi — kalau seukuran sisanya, ia
  * cuma terlihat seperti salah ketik.
  */
-export function LogoDailyPanjang({ className }: { className?: string }) {
+export function LogoOnwardPanjang({ className }: { className?: string }) {
   return (
     <span
       className={cn(
@@ -47,11 +47,11 @@ export function LogoDailyPanjang({ className }: { className?: string }) {
 /**
  * Bentuk pendek — satu kata, untuk header, sidebar, dan ruang sempit.
  *
- * Belahannya jatuh setelah "Dai" supaya ekor italic mendarat di dua huruf
- * terakhir; membelah di tengah ("Da|ily") membuat bagian italic terlalu
- * dominan dan namanya sulit terbaca sebagai satu kata.
+ * Belahannya jatuh setelah "On": suku katanya memang putus di situ
+ * ("on-ward"), jadi mata membacanya sebagai satu kata utuh meski separuhnya
+ * berganti rasa huruf.
  */
-export function LogoDaily({
+export function LogoOnward({
   className,
   title,
 }: {
@@ -65,10 +65,10 @@ export function LogoDaily({
         className
       )}
       role="img"
-      aria-label={title ?? "Daily"}
+      aria-label={title ?? "Onward"}
     >
       <span aria-hidden className="font-bold">
-        Dai
+        On
       </span>
       {/* File fontnya SUDAH italic, jadi jangan tambah class `italic` lagi —
           browser akan memiringkannya sekali lagi secara sintetis dan hasilnya
@@ -77,7 +77,7 @@ export function LogoDaily({
         aria-hidden
         className="-ml-[0.03em] font-[family-name:var(--font-editorial)]"
       >
-        ly
+        ward
       </span>
     </span>
   );

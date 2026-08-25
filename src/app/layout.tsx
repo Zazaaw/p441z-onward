@@ -21,10 +21,10 @@ const timesTen = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "Daily",
-    template: "%s · Daily",
+    default: "Onward",
+    template: "%s · Onward",
   },
-  description: "Satu hari, satu langkah. Sedikit lebih baik dari kemarin.",
+  description: "Maju sedikit setiap hari. Satu hari lebih baik dari kemarin.",
   // Internal tool — jangan diindeks mesin pencari.
   robots: { index: false, follow: false },
 };

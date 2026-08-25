@@ -131,7 +131,7 @@ export function Showcase({
               <JamHidup jamAwal={jamAwal} />
             </h2>
             <p className="mt-5 max-w-md text-base leading-relaxed text-white/80">
-              Satu hari, satu langkah. Sedikit lebih baik dari kemarin.
+              Maju sedikit setiap hari. Tidak perlu cepat, cukup terus.
             </p>
           </div>
 
