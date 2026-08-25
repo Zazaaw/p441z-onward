@@ -5,7 +5,7 @@ import BlurFade from "@/components/effects/blur-fade";
 import DotPattern from "@/components/effects/dot-pattern";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LogoOnward, LogoOnwardPanjang } from "@/components/logo-onward";
-import { JamHidup } from "@/components/jam-hidup";
+import { KutipanHarian } from "./kutipan";
 import { LoginForm } from "./login-form";
 import { Showcase } from "./showcase";
 import { MapPin, ShieldCheck } from "lucide-react";
@@ -73,6 +73,13 @@ export default async function LoginPage() {
             <LogoOnward className="text-sm" />
           </div>
 
+          {/* Tanggal di sudut kanan — mengisi sudut yang tadinya kosong dan
+              memberi zona atas dua titik berat, bukan cuma satu di kiri.
+              Hanya di desktop; di mobile tempatnya dipakai identitas. */}
+          <span className="hidden text-sm text-muted-foreground lg:inline">
+            {namaHariWIB()}, {tanggalPanjangWIB()}
+          </span>
+
           {/* Identitas dipindah ke sini — di desktop panel kanan sudah
               memuatnya, jadi cukup tampil saat panel disembunyikan. */}
           <div className="flex items-center gap-2.5 lg:hidden">
@@ -113,15 +120,14 @@ export default async function LoginPage() {
             <LogoOnwardPanjang />
           </h1>
 
-          {/* Jam berjalan menggantikan "Masuk untuk melanjutkan" — kalimat
-              itu cuma mengulang apa yang sudah jelas dari tombolnya.
-              Sisi kiri jadi ikut hidup, tidak diam sepenuhnya. */}
-          <p className="mt-6 flex items-baseline gap-2 text-sm text-muted-foreground">
-            <span className="text-2xl font-bold tabular-nums text-foreground">
-              <JamHidup jamAwal={jamWIB()} />
-            </span>
-            {namaHariWIB()}, {tanggalPanjangWIB()}
-          </p>
+          {/* Kutipan harian, bukan jam: panel kanan sudah memuat jam raksasa,
+              dan dua jam identik berdampingan membuat yang di sisi ini
+              terlihat tanpa alasan. Kutipan memberi sisi kiri isi yang tidak
+              dipunyai panel kanan.
+
+              Dipisah garis tipis di kiri supaya terbaca sebagai kutipan,
+              bukan subjudul lanjutan dari tagline. */}
+          <KutipanHarian className="mt-7 border-l-2 border-neutral-300 pl-4 text-muted-foreground dark:border-neutral-700" />
 
           <div className="mt-8">
             {/* LoginForm membaca ?next= lewat useSearchParams, jadi butuh
