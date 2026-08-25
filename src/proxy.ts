@@ -55,6 +55,10 @@ const BYPASS_PREFIXES = [
   "/favicon.ico",
   "/icon",
   "/apple-icon",
+  // Manifest dibaca browser tanpa membawa cookie sesi. Kalau ikut
+  // deny-by-default, yang terunduh justru HTML halaman login — dan pemasangan
+  // ke layar utama gagal tanpa pesan apa pun.
+  "/manifest.webmanifest",
   "/api/cron",
 ];
 
