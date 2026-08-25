@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Suspense } from "react";
 import BlurFade from "@/components/effects/blur-fade";
+import DotPattern from "@/components/effects/dot-pattern";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LogoOnward, LogoOnwardPanjang } from "@/components/logo-onward";
+import { JamHidup } from "@/components/jam-hidup";
 import { LoginForm } from "./login-form";
 import { Showcase } from "./showcase";
 import { MapPin, ShieldCheck } from "lucide-react";
@@ -41,87 +43,110 @@ export default async function LoginPage() {
   return (
     <div className="grid min-h-dvh w-full grid-cols-1 lg:grid-cols-2">
       {/* ── KIRI: form ───────────────────────────────────────────────────
-          Form yang duluan dibaca, bukan panel bermerek — sama seperti
-          halaman auth di portfolio. */}
-      <BlurFade className="flex items-center justify-center px-6 py-10 sm:px-10">
-        {/* Kartu berbingkai — memberi form batas yang jelas, sepadan dengan
-            panel kanan yang juga sebuah kartu. Tanpa ini form terlihat
-            mengambang di ruang kosong. */}
-        <div className="w-full max-w-sm rounded-2xl border border-neutral-200 bg-white/50 p-7 backdrop-blur-sm sm:p-8 dark:border-neutral-800 dark:bg-neutral-900/40">
-          {/* Identitas ringkas. Di desktop panel kanan sudah memuatnya,
-              jadi ini hanya tampil saat panel disembunyikan. */}
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <div className="relative size-10 shrink-0 overflow-hidden rounded-full ring-1 ring-neutral-200 dark:ring-neutral-800">
-              {profil?.foto ? (
-                <Image
-                  src={profil.foto}
-                  alt={nama}
-                  fill
-                  sizes="40px"
-                  className="object-cover"
-                  unoptimized
-                />
-              ) : (
-                <span className="flex size-full items-center justify-center bg-muted text-xs font-bold">
-                  FH
-                </span>
-              )}
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold leading-tight">
-                {nama}
-              </p>
-              <p className="truncate text-xs text-muted-foreground">
-                Fullstack Developer &amp; Designer
-              </p>
-            </div>
-          </div>
+          Tiga zona yang mengisi TINGGI PENUH, bukan kartu mengambang di
+          tengah. Sebelumnya sisi ini cuma kotak kecil di lautan kosong,
+          sementara panel kanan penuh warna dan gerak — timpang.
 
-          {/* Penanda merek kecil — nama produk + hari, sebagai pembuka. */}
+          Sekarang: merek dipatok di atas, blok utama (tagline + form) di
+          tengah, catatan kaki di dasar. Ruang kosongnya jadi jarak antar
+          zona, bukan lubang di sekeliling satu kotak. */}
+      <div className="relative flex min-h-dvh flex-col justify-between px-6 py-8 sm:px-12 lg:px-16 xl:px-20">
+        {/* Tekstur halus supaya sisi ini tidak terasa hampa di sebelah panel
+            kanan yang penuh gambar. Di-mask memudar ke bawah agar tidak
+            mengganggu keterbacaan form. */}
+        <DotPattern
+          width={22}
+          height={22}
+          cx={1}
+          cy={1}
+          cr={1}
+          className="pointer-events-none absolute inset-0 -z-10 opacity-60 [mask-image:radial-gradient(70%_60%_at_20%_25%,white,transparent)]"
+        />
+
+        {/* ── Zona atas: merek ──────────────────────────────────────────── */}
+        <BlurFade className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="relative flex size-2">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-60" />
               <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
             </span>
             <LogoOnward className="text-sm" />
-            <span className="text-sm text-muted-foreground">
-              · {namaHariWIB()}
-            </span>
           </div>
 
-          {/* Tagline jadi judul visual halaman. Ukurannya sengaja besar —
-              inilah satu-satunya elemen yang boleh menarik perhatian di
-              sisi ini; sisanya cuma form. clamp() menahannya agar tidak
-              meluber di layar sempit. */}
-          <h1 className="mt-6 text-[clamp(2.5rem,5.5vw,3.5rem)]">
+          {/* Identitas dipindah ke sini — di desktop panel kanan sudah
+              memuatnya, jadi cukup tampil saat panel disembunyikan. */}
+          <div className="flex items-center gap-2.5 lg:hidden">
+            <div className="min-w-0 text-right">
+              <p className="truncate text-xs font-semibold leading-tight">
+                {nama}
+              </p>
+              <p className="truncate text-[11px] text-muted-foreground">
+                Fullstack Developer &amp; Designer
+              </p>
+            </div>
+            <div className="relative size-8 shrink-0 overflow-hidden rounded-full ring-1 ring-neutral-200 dark:ring-neutral-800">
+              {profil?.foto ? (
+                <Image
+                  src={profil.foto}
+                  alt={nama}
+                  fill
+                  sizes="32px"
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <span className="flex size-full items-center justify-center bg-muted text-[10px] font-bold">
+                  FH
+                </span>
+              )}
+            </div>
+          </div>
+        </BlurFade>
+
+        {/* ── Zona tengah: tagline + form ───────────────────────────────
+            Dibatasi max-w-sm dan dibiarkan rata kiri, jadi tepi kiri
+            tagline, label, dan tombol semuanya berbaris pada satu garis
+            tegak — itu yang membuat blok ini terbaca rapi tanpa perlu
+            bingkai kartu. */}
+        <BlurFade delay={0.08} className="w-full max-w-sm py-12">
+          <h1 className="text-[clamp(2.75rem,6vw,4rem)]">
             <LogoOnwardPanjang />
           </h1>
-          <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
-            Masuk untuk melanjutkan.
+
+          {/* Jam berjalan menggantikan "Masuk untuk melanjutkan" — kalimat
+              itu cuma mengulang apa yang sudah jelas dari tombolnya.
+              Sisi kiri jadi ikut hidup, tidak diam sepenuhnya. */}
+          <p className="mt-6 flex items-baseline gap-2 text-sm text-muted-foreground">
+            <span className="text-2xl font-bold tabular-nums text-foreground">
+              <JamHidup jamAwal={jamWIB()} />
+            </span>
+            {namaHariWIB()}, {tanggalPanjangWIB()}
           </p>
 
-          <div className="mt-6">
+          <div className="mt-8">
             {/* LoginForm membaca ?next= lewat useSearchParams, jadi butuh
                 Suspense boundary agar halaman tetap bisa di-prerender. */}
             <Suspense fallback={<FormSkeleton />}>
               <LoginForm />
             </Suspense>
           </div>
+        </BlurFade>
 
-          {/* Penutup: dua keterangan yang benar-benar berguna sebelum
-              login — tanggal berlaku, dan dari mana akunnya berasal. */}
-          <div className="mt-8 space-y-2 border-t border-neutral-200 pt-5 text-xs text-muted-foreground dark:border-neutral-800">
-            <p className="flex items-center gap-1.5">
-              <MapPin className="size-3.5 shrink-0" />
-              {tanggalPanjangWIB()} · zona WIB
-            </p>
-            <p className="flex items-center gap-1.5">
-              <ShieldCheck className="size-3.5 shrink-0" />
-              Akun dikelola terpusat lewat portfolio.
-            </p>
-          </div>
-        </div>
-      </BlurFade>
+        {/* ── Zona bawah: catatan kaki ──────────────────────────────────── */}
+        <BlurFade
+          delay={0.16}
+          className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-muted-foreground"
+        >
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck className="size-3.5 shrink-0" />
+            Akun dikelola terpusat lewat portfolio.
+          </span>
+          <span className="flex items-center gap-1.5">
+            <MapPin className="size-3.5 shrink-0" />
+            Jakarta · WIB
+          </span>
+        </BlurFade>
+      </div>
 
       {/* ── KANAN: panel bermerek (desktop saja, rounded dengan margin) ── */}
       <div className="hidden p-4 lg:block">
