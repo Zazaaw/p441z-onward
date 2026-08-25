@@ -66,11 +66,11 @@ export default async function LoginPage() {
         {/* ── Zona atas: merek ──────────────────────────────────────────── */}
         <BlurFade className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="relative flex size-2">
+            <span className="relative flex size-2.5">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-60" />
-              <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+              <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500" />
             </span>
-            <LogoOnward className="text-sm" />
+            <LogoOnward className="text-lg" />
           </div>
 
           {/* Tanggal di sudut kanan — mengisi sudut yang tadinya kosong dan
@@ -115,8 +115,12 @@ export default async function LoginPage() {
             tagline, label, dan tombol semuanya berbaris pada satu garis
             tegak — itu yang membuat blok ini terbaca rapi tanpa perlu
             bingkai kartu. */}
-        <BlurFade delay={0.08} className="w-full max-w-sm py-12">
-          <h1 className="text-[clamp(2.75rem,6vw,4rem)]">
+        <BlurFade delay={0.08} className="w-full py-12">
+          {/* Tagline dibiarkan melebar mengikuti sisi kiri, tidak dikurung
+              max-w-sm seperti form. Inilah yang mengisi ruang kosong: huruf,
+              bukan elemen tambahan. 8vw membuatnya ikut tumbuh di layar
+              lebar, dan clamp menahannya agar tidak meluber di layar kecil. */}
+          <h1 className="text-[clamp(3.25rem,8vw,6.5rem)]">
             <LogoOnwardPanjang />
           </h1>
 
@@ -127,9 +131,12 @@ export default async function LoginPage() {
 
               Dipisah garis tipis di kiri supaya terbaca sebagai kutipan,
               bukan subjudul lanjutan dari tagline. */}
-          <KutipanHarian className="mt-7 border-l-2 border-neutral-300 pl-4 text-muted-foreground dark:border-neutral-700" />
+          <KutipanHarian className="mt-8 max-w-md border-l-2 border-neutral-300 pl-4 text-muted-foreground dark:border-neutral-700" />
 
-          <div className="mt-8">
+          {/* Form tetap dikurung sempit: baris input yang terlalu lebar
+              justru sulit dipindai, dan tepi kirinya tetap sejajar dengan
+              tagline di atasnya. */}
+          <div className="mt-10 w-full max-w-sm">
             {/* LoginForm membaca ?next= lewat useSearchParams, jadi butuh
                 Suspense boundary agar halaman tetap bisa di-prerender. */}
             <Suspense fallback={<FormSkeleton />}>

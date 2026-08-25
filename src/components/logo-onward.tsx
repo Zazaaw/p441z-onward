@@ -24,8 +24,11 @@ import { cn } from "@/lib/utils";
 export function LogoOnwardPanjang({ className }: { className?: string }) {
   return (
     <span
+      // tracking-[-0.03em], bukan tracking-tighter (-0.05em): pada ukuran
+      // sangat besar, rapat yang sama secara relatif terlihat jauh lebih
+      // sempit dan huruf mulai saling tabrak.
       className={cn(
-        "inline-block select-none text-left leading-[0.82] tracking-tighter",
+        "inline-block select-none text-left leading-[0.82] tracking-[-0.03em]",
         className
       )}
       role="img"
