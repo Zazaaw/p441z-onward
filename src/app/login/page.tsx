@@ -41,29 +41,33 @@ export default async function LoginPage() {
   const nama = profil?.nama ?? "Faiz Hazim Hawari";
 
   return (
-    <div className="grid min-h-dvh w-full grid-cols-1 lg:grid-cols-2">
-      {/* ── KIRI: form ───────────────────────────────────────────────────
-          Tiga zona yang mengisi TINGGI PENUH, bukan kartu mengambang di
-          tengah. Sebelumnya sisi ini cuma kotak kecil di lautan kosong,
-          sementara panel kanan penuh warna dan gerak — timpang.
+    // 40/60 — panel foto di kanan sengaja dapat porsi lebih besar; dialah
+    // yang membawa warna dan gerak, jadi lebih pantas mendominasi daripada
+    // sisi form. Sisi kiri masih cukup untuk dua kolomnya, hanya saja kedua
+    // kolom itu runtuh jadi satu tumpukan lebih awal (di bawah xl).
+    <div className="grid min-h-dvh w-full grid-cols-1 lg:grid-cols-[2fr_3fr]">
+      {/* ── KIRI ─────────────────────────────────────────────────────────
+          Isinya dibagi DUA KOLOM di dalam sisi ini sendiri: tagline besar
+          di kolom kiri, form di kolom kanan, keduanya rata tengah secara
+          vertikal.
 
-          Sekarang: merek dipatok di atas, blok utama (tagline + form) di
-          tengah, catatan kaki di dasar. Ruang kosongnya jadi jarak antar
-          zona, bukan lubang di sekeliling satu kotak. */}
-      <div className="relative flex min-h-dvh flex-col justify-between px-6 py-8 sm:px-12 lg:px-16 xl:px-20">
-        {/* Tekstur halus supaya sisi ini tidak terasa hampa di sebelah panel
-            kanan yang penuh gambar. Di-mask memudar ke bawah agar tidak
-            mengganggu keterbacaan form. */}
+          Susunan sebelumnya menumpuk semuanya dalam satu kolom sempit —
+          tagline 6,5rem lalu form 380px tepat di bawahnya — sehingga ada
+          tebing lebar antara keduanya dan sisi kanan menganga kosong.
+          Dengan dua kolom, ruang itu terpakai oleh form, bukan dibiarkan
+          menganga, dan tagline tidak perlu lagi ditarik sebesar mungkin
+          demi menutupi kekosongan. */}
+      <div className="relative flex min-h-dvh flex-col px-6 py-8 sm:px-10 lg:px-12 xl:px-16">
         <DotPattern
           width={22}
           height={22}
           cx={1}
           cy={1}
           cr={1}
-          className="pointer-events-none absolute inset-0 -z-10 opacity-60 [mask-image:radial-gradient(70%_60%_at_20%_25%,white,transparent)]"
+          className="pointer-events-none absolute inset-0 -z-10 opacity-60 [mask-image:radial-gradient(75%_65%_at_15%_20%,white,transparent)]"
         />
 
-        {/* ── Zona atas: merek ──────────────────────────────────────────── */}
+        {/* ── Atas: merek + tanggal ─────────────────────────────────────── */}
         <BlurFade className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="relative flex size-2.5">
@@ -73,15 +77,10 @@ export default async function LoginPage() {
             <LogoOnward className="text-lg" />
           </div>
 
-          {/* Tanggal di sudut kanan — mengisi sudut yang tadinya kosong dan
-              memberi zona atas dua titik berat, bukan cuma satu di kiri.
-              Hanya di desktop; di mobile tempatnya dipakai identitas. */}
           <span className="hidden text-sm text-muted-foreground lg:inline">
             {namaHariWIB()}, {tanggalPanjangWIB()}
           </span>
 
-          {/* Identitas dipindah ke sini — di desktop panel kanan sudah
-              memuatnya, jadi cukup tampil saat panel disembunyikan. */}
           <div className="flex items-center gap-2.5 lg:hidden">
             <div className="min-w-0 text-right">
               <p className="truncate text-xs font-semibold leading-tight">
@@ -110,44 +109,46 @@ export default async function LoginPage() {
           </div>
         </BlurFade>
 
-        {/* ── Zona tengah: tagline + form ───────────────────────────────
-            Dibatasi max-w-sm dan dibiarkan rata kiri, jadi tepi kiri
-            tagline, label, dan tombol semuanya berbaris pada satu garis
-            tegak — itu yang membuat blok ini terbaca rapi tanpa perlu
-            bingkai kartu. */}
-        <BlurFade delay={0.08} className="w-full py-12">
-          {/* Tagline dibiarkan melebar mengikuti sisi kiri, tidak dikurung
-              max-w-sm seperti form. Inilah yang mengisi ruang kosong: huruf,
-              bukan elemen tambahan. 8vw membuatnya ikut tumbuh di layar
-              lebar, dan clamp menahannya agar tidak meluber di layar kecil. */}
-          <h1 className="text-[clamp(3.25rem,8vw,6.5rem)]">
-            <LogoOnwardPanjang />
-          </h1>
+        {/* ── Tengah: dua kolom berdampingan ─────────────────────────────
+            flex-1 membuat blok ini melahap sisa tinggi, lalu isinya
+            dipusatkan — jadi jaraknya ke merek di atas dan catatan kaki di
+            bawah seimbang dengan sendirinya. */}
+        <div className="flex flex-1 items-center py-10">
+          <div className="grid w-full gap-y-10 2xl:grid-cols-[1fr_auto] 2xl:gap-x-14">
+            {/* Kolom kiri: tagline + kutipan */}
+            <BlurFade delay={0.08} className="self-center">
+              <h1 className="text-[clamp(2.75rem,7.5vw,5rem)]">
+                <LogoOnwardPanjang />
+              </h1>
 
-          {/* Kutipan harian, bukan jam: panel kanan sudah memuat jam raksasa,
-              dan dua jam identik berdampingan membuat yang di sisi ini
-              terlihat tanpa alasan. Kutipan memberi sisi kiri isi yang tidak
-              dipunyai panel kanan.
+              <KutipanHarian className="mt-7 max-w-sm border-l-2 border-neutral-300 pl-4 text-muted-foreground dark:border-neutral-700" />
+            </BlurFade>
 
-              Dipisah garis tipis di kiri supaya terbaca sebagai kutipan,
-              bukan subjudul lanjutan dari tagline. */}
-          <KutipanHarian className="mt-8 max-w-md border-l-2 border-neutral-300 pl-4 text-muted-foreground dark:border-neutral-700" />
+            {/* Kolom kanan: form.
+                Dengan sisi kiri hanya 40% lebar layar, dua kolom baru muat
+                di 2xl ke atas; di bawah itu keduanya menumpuk. */}
+            <BlurFade
+              delay={0.16}
+              className="w-full max-w-sm self-center 2xl:w-[21rem]"
+            >
+              {/* Pembatas tegak hanya muncul saat benar-benar dua kolom,
+                  sebagai pemisah antara sisi merek dan sisi kerja. */}
+              <div className="2xl:border-l 2xl:border-neutral-200 2xl:pl-14 dark:2xl:border-neutral-800">
+                <p className="mb-6 text-sm font-medium">Masuk ke akunmu</p>
 
-          {/* Form tetap dikurung sempit: baris input yang terlalu lebar
-              justru sulit dipindai, dan tepi kirinya tetap sejajar dengan
-              tagline di atasnya. */}
-          <div className="mt-10 w-full max-w-sm">
-            {/* LoginForm membaca ?next= lewat useSearchParams, jadi butuh
-                Suspense boundary agar halaman tetap bisa di-prerender. */}
-            <Suspense fallback={<FormSkeleton />}>
-              <LoginForm />
-            </Suspense>
+                {/* LoginForm membaca ?next= lewat useSearchParams, jadi
+                    butuh Suspense boundary agar tetap bisa di-prerender. */}
+                <Suspense fallback={<FormSkeleton />}>
+                  <LoginForm />
+                </Suspense>
+              </div>
+            </BlurFade>
           </div>
-        </BlurFade>
+        </div>
 
-        {/* ── Zona bawah: catatan kaki ──────────────────────────────────── */}
+        {/* ── Bawah: catatan kaki ───────────────────────────────────────── */}
         <BlurFade
-          delay={0.16}
+          delay={0.24}
           className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-muted-foreground"
         >
           <span className="flex items-center gap-1.5">
