@@ -40,10 +40,10 @@ export default async function LoginPage() {
   const nama = profil?.nama ?? "Faiz Hazim Hawari";
 
   return (
-    // 50/50 seperti referensi. Kartu di kiri dibatasi max-w-md, jadi lebar
-    // berlebih menjadi ruang napas di sekelilingnya — bukan meregangkan
-    // isinya.
-    <div className="grid min-h-dvh w-full grid-cols-1 lg:grid-cols-2">
+    // 40/60 — panel foto di kanan dapat porsi lebih besar; dialah yang
+    // membawa warna dan gerak. Sisi kiri isinya sedikit dan dibatasi
+    // max-w-[23rem], jadi lebar berlebih memang tidak dibutuhkannya.
+    <div className="grid min-h-dvh w-full grid-cols-1 lg:grid-cols-[2fr_3fr]">
       {/* ── KIRI ─────────────────────────────────────────────────────────
           Ditulis ulang dari nol. Aturannya satu: TIDAK MENGULANG apa pun
           yang sudah ada di panel kanan.
@@ -66,7 +66,7 @@ export default async function LoginPage() {
           className="pointer-events-none absolute inset-0 -z-10 opacity-50 [mask-image:radial-gradient(60%_50%_at_50%_50%,white,transparent)]"
         />
 
-        <BlurFade className="w-full max-w-[21rem]">
+        <BlurFade className="w-full max-w-[23rem]">
           {/* Merek — kecil, di atas, rata kiri seperti seluruh blok ini.
               Sengaja tidak dipusatkan: satu sumbu rata kiri membuat merek,
               tagline, label, dan input berbaris pada satu garis tegak, dan
@@ -82,13 +82,13 @@ export default async function LoginPage() {
           {/* Tagline — satu-satunya elemen besar di sisi ini. Ukurannya
               dipatok pada lebar kolom (bukan vw) supaya "one day" tetap
               muat dalam satu baris di lebar berapa pun. */}
-          <h1 className="mt-12 text-[3.25rem]">
+          <h1 className="mt-12 text-[clamp(3.25rem,4.5vw,4.25rem)]">
             <LogoOnwardPanjang />
           </h1>
 
           {/* Kutipan sebagai penutup tagline, bukan deskripsi terpisah —
               karena itu jaraknya rapat (mt-5) dan ukurannya kecil. */}
-          <KutipanHarian className="mt-5 text-sm leading-relaxed text-muted-foreground" />
+          <KutipanHarian className="mt-6 max-w-[21rem] text-[0.9375rem] leading-relaxed text-muted-foreground" />
 
           {/* Form. Jaraknya ke tagline dibuat lega (mt-12) supaya dua
               kelompok ini terbaca terpisah: yang di atas identitas, yang

@@ -1,7 +1,7 @@
 import { tanggalWIB } from "@/services/waktu";
 
 /**
- * Kutipan yang berganti tiap hari, sebagai penutup blok tagline.
+ * Kalimat yang berganti tiap hari, sebagai penutup blok tagline.
  *
  * Sengaja BUKAN data presensi: apa pun yang bersumber dari akun akan bocor
  * ke siapa saja yang membuka halaman login, padahal belum ada yang
@@ -12,14 +12,14 @@ import { tanggalWIB } from "@/services/waktu";
  * kutipan yang sama. Math.random() di sini akan memicu hydration mismatch.
  */
 const KUTIPAN = [
-  "Yang penting bukan seberapa cepat, tapi seberapa sering.",
-  "Hari biasa yang dijalani terus akan mengalahkan hari luar biasa yang sesekali.",
-  "Kemajuan jarang terasa saat dijalani, hanya terlihat saat ditengok.",
-  "Cukup lebih baik sedikit dari kemarin. Itu saja.",
-  "Konsistensi mengalahkan intensitas.",
-  "Langkah kecil tetap langkah.",
-  "Muncul dulu, sempurna belakangan.",
-];
+  "Bukan soal seberapa cepat, tapi seberapa sering kamu kembali.",
+  "Hari yang biasa saja, dijalani terus, mengalahkan hari luar biasa yang sesekali.",
+  "Kemajuan jarang terasa saat dijalani — baru terlihat saat ditengok.",
+  "Tidak perlu jadi hebat hari ini. Cukup lebih baik sedikit dari kemarin.",
+  "Yang membentukmu bukan hari besarnya, tapi hari-hari kecil di antaranya.",
+  "Datang dulu, sempurna belakangan.",
+  "Pelan bukan berarti berhenti.",
+]
 
 export function KutipanHarian({ className }: { className?: string }) {
   // Jumlah hari sejak epoch, dipakai sebagai indeks — berganti tepat saat
@@ -28,10 +28,10 @@ export function KutipanHarian({ className }: { className?: string }) {
   const kutipan = KUTIPAN[hari % KUTIPAN.length];
 
   return (
-    <p className={className}>
-      <span className="font-[family-name:var(--font-editorial)] text-lg leading-snug">
-        {kutipan}
-      </span>
-    </p>
+    // Sans, bukan serif: Times Ten sudah dipakai di tagline tepat di atas
+    // baris ini, dan dua elemen serif berurutan membuat keduanya saling
+    // meredam. Sans di sini justru menegaskan tagline sebagai satu-satunya
+    // aksen editorial.
+    <p className={className}>{kutipan}</p>
   );
 }
