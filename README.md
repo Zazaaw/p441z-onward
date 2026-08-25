@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Onward
 
-## Getting Started
+Maju sedikit setiap hari. Satu hari lebih baik dari kemarin.
 
-First, run the development server:
+Alat pribadi satu-pengguna untuk mencatat kehadiran harian dan memantau
+rekapnya. Dibangun dengan Next.js (App Router) + Supabase.
+
+## Menjalankan secara lokal
 
 ```bash
+npm install
+cp .env.example .env.local   # lalu isi nilainya
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka http://localhost:3000 — semua rute dilindungi, jadi kamu akan diarahkan
+ke `/login` lebih dulu.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variabel lingkungan
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Lihat [.env.example](.env.example) untuk daftar lengkap beserta keterangannya.
+Yang wajib: kredensial `AGHRIS_*`, `PORTFOLIO_SUPABASE_*`, `ALLOWED_EMAIL`,
+dan `CRON_SECRET`. Sisanya (GitHub, WakaTime, Last.fm) opsional — bila kosong,
+bagian terkait di panel login hilang tanpa membuat error.
 
-## Learn More
+## Deploy ke Vercel
 
-To learn more about Next.js, take a look at the following resources:
+1. Push repo ini ke GitHub, lalu import di Vercel.
+2. Salin semua isi `.env.example` ke **Settings → Environment Variables**.
+   Isi `NEXT_PUBLIC_SITE_URL` dengan domain final, mis.
+   `https://onward.p441z.my.id`.
+3. Jadwal cron sudah diatur lewat [vercel.json](vercel.json). Vercel Cron
+   otomatis mengirim `Authorization: Bearer <CRON_SECRET>` selama env-nya
+   bernama persis `CRON_SECRET`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Sebelum otomasi dinyalakan di Vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`src/services/pengaturan.ts` menyimpan preferensi otomasi ke berkas JSON
+lokal. **Filesystem Vercel read-only dan ephemeral**, jadi di sana
+penyimpanan itu tidak akan bertahan: pengaturan kembali ke bawaan setiap kali
+instance baru dijalankan.
 
-## Deploy on Vercel
+Konsekuensinya, di Vercel:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Halaman **Otomasi** akan gagal saat menyimpan.
+- Cron tetap berjalan, tetapi selalu membaca pengaturan bawaan —
+  dan bawaannya `auto_aktif: false`, sehingga tidak melakukan apa pun.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Sisa aplikasi (login, dashboard, riwayat, log) berjalan normal. Untuk
+mengaktifkan otomasi, pindahkan penyimpanan ke Vercel KV / Upstash / satu
+tabel kecil. Kontrak `getPengaturan` / `simpanPengaturan` tidak perlu berubah
+— cukup ganti isinya.
