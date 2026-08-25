@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...kecuali contohnya: berkas ini justru harus ikut ke repo karena
+# README merujuknya sebagai daftar env yang perlu diisi.
+!.env.example
 
 # vercel
 .vercel
