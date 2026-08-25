@@ -142,12 +142,14 @@ export default async function LoginPage() {
                 </p>
               </div>
 
+              {/* Lebarnya dipatok lewat WADAH, bukan lewat className grid-nya:
+                  KontribusiGrid membawa `w-full` sendiri, jadi w-24 yang
+                  dioper dari luar kalah dan kotaknya melar mengikuti sisa
+                  ruang kartu. */}
               {github && (
-                <KontribusiGrid
-                  data={github}
-                  minggu={10}
-                  className="hidden w-24 shrink-0 text-foreground sm:block"
-                />
+                <div className="hidden w-[5.5rem] shrink-0 text-foreground sm:block">
+                  <KontribusiGrid data={github} minggu={10} />
+                </div>
               )}
             </div>
           </BlurFade>
