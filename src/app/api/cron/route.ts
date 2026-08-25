@@ -21,8 +21,9 @@ export const dynamic = "force-dynamic";
  * Uji manual:
  *   curl -H "Authorization: Bearer <CRON_SECRET>" http://localhost:3000/api/cron
  *
- * Di Vercel, header ini dikirim OTOMATIS oleh Vercel Cron selama env-nya
- * bernama persis CRON_SECRET — jadwalnya diatur lewat vercel.json.
+ * Penjadwalannya lewat GitHub Actions (.github/workflows/cron.yml), bukan
+ * Vercel Cron: paket Hobby hanya mengizinkan satu eksekusi per hari,
+ * sedangkan presensi butuh dua — check-in pagi dan check-out malam.
  *   tambahkan ?dry=1 untuk melihat keputusannya TANPA menulis apa pun.
  */
 export async function GET(req: Request) {

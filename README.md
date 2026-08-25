@@ -29,9 +29,29 @@ bagian terkait di panel login hilang tanpa membuat error.
 2. Salin semua isi `.env.example` ke **Settings → Environment Variables**.
    Isi `NEXT_PUBLIC_SITE_URL` dengan domain final, mis.
    `https://onward.p441z.my.id`.
-3. Jadwal cron sudah diatur lewat [vercel.json](vercel.json). Vercel Cron
-   otomatis mengirim `Authorization: Bearer <CRON_SECRET>` selama env-nya
-   bernama persis `CRON_SECRET`.
+3. Cron **tidak** memakai Vercel Cron: paket Hobby hanya mengizinkan satu
+   eksekusi per hari, sedangkan presensi butuh dua (check-in pagi dan
+   check-out malam). Penjadwalannya lewat GitHub Actions — lihat di bawah.
+
+## Cron lewat GitHub Actions
+
+[.github/workflows/cron.yml](.github/workflows/cron.yml) memanggil
+`/api/cron` dua kali pada hari kerja: 07:25 dan 21:55 WIB, beberapa menit
+sebelum masing-masing jendela dibuka.
+
+Isi dua secret di **Settings → Secrets and variables → Actions**:
+
+| Secret | Isi |
+| --- | --- |
+| `SITE_URL` | `https://onward.p441z.my.id` (tanpa garis miring di akhir) |
+| `CRON_SECRET` | nilai yang sama dengan env di Vercel |
+
+Untuk menguji tanpa benar-benar presensi: tab **Actions** → *Presensi
+otomatis* → **Run workflow**, centang *Uji coba*.
+
+Catatan: jadwal Actions kerap meleset 5–15 menit saat antreannya ramai.
+Endpoint sudah memberi toleransi 2 jam setelah jendela berakhir, jadi
+keterlambatan sebesar itu masih tertangani.
 
 ### Sebelum otomasi dinyalakan di Vercel
 

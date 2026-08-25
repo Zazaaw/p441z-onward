@@ -1,0 +1,62 @@
+name: Presensi otomatis
+
+# Jadwal GitHub Actions memakai UTC. WIB = UTC+7, jadi:
+#   00:25 UTC = 07:25 WIB  -> jendela check-in  (07:30-07:45)
+#   14:55 UTC = 21:55 WIB  -> jendela check-out (22:00-22:30)
+#
+# Sengaja dijadwalkan beberapa menit SEBELUM jendela dibuka: Actions kerap
+# meleset 5-15 menit saat antreannya ramai, dan endpoint sudah memberi
+# toleransi 2 jam setelah jendela berakhir.
+on:
+  schedule:
+    - cron: "25 0 * * 1-5"
+    - cron: "55 14 * * 1-5"
+  # Supaya bisa diuji manual dari tab Actions tanpa menunggu jadwal.
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "Uji coba tanpa benar-benar presensi"
+        type: boolean
+        default: false
+
+jobs:
+  presensi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Panggil endpoint cron
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SITE_URL:-}" ] || [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::SITE_URL atau CRON_SECRET belum diset di repository secrets."
+            exit 1
+          fi
+
+          URL="$SITE_URL/api/cron"
+          if [ "${{ inputs.dry }}" = "true" ]; then
+            URL="$URL?dry=1"
+            echo "Mode uji coba — tidak akan benar-benar presensi."
+          fi
+
+          # -sS: sunyi tapi tetap menampilkan galat. Body dipisah dari kode
+          # status supaya keduanya bisa dilaporkan terpisah.
+          BODY=$(mktemp)
+          KODE=$(curl -sS -w "%{http_code}" -o "$BODY" \
+            --retry 3 --retry-delay 20 --retry-all-errors \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$URL")
+
+          echo "Kode status: $KODE"
+          echo "Balasan:"
+          cat "$BODY"
+          echo ""
+
+          # Endpoint membalas 200 juga saat memutuskan "lewat" (akhir pekan,
+          # libur, otomasi mati) — itu bukan kegagalan.
+          if [ "$KODE" != "200" ]; then
+            echo "::error::Endpoint membalas $KODE, bukan 200."
+            exit 1
+          fi
