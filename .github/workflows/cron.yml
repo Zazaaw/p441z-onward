@@ -1,16 +1,35 @@
 name: Presensi otomatis
 
-# Jadwal GitHub Actions memakai UTC. WIB = UTC+7, jadi:
-#   00:25 UTC = 07:25 WIB  -> jendela check-in  (07:30-07:45)
-#   14:55 UTC = 21:55 WIB  -> jendela check-out (22:00-22:30)
+# Jadwal GitHub Actions memakai UTC. WIB = UTC+7.
 #
-# Sengaja dijadwalkan beberapa menit SEBELUM jendela dibuka: Actions kerap
-# meleset 5-15 menit saat antreannya ramai, dan endpoint sudah memberi
-# toleransi 2 jam setelah jendela berakhir.
+# Waktunya TIDAK simetris antara check-in dan check-out, karena aturan di
+# endpoint memang berbeda:
+#
+#   check-in  : dilewati kalau menitSekarang > (checkin_selesai + 2 jam).
+#               Datang lebih awal TIDAK masalah — jam yang dicatat diacak di
+#               dalam jendela, bukan diambil dari jam saat cron jalan.
+#
+#   check-out : dilewati kalau menitSekarang < checkout_mulai.
+#               Datang lebih awal DITOLAK, dan tidak ada batas atas — jadi
+#               telat justru aman.
+#
+# Karena itu check-in dijadwalkan SEBELUM jendela, sedangkan check-out harus
+# SESUDAH jendela terbuka. Versi sebelumnya menjadwalkan check-out 21:55
+# padahal jendelanya baru buka 22:00, sehingga auto check-out tidak pernah
+# jalan sama sekali.
+#
+# Masing-masing punya satu jadwal cadangan: GitHub bisa menunda atau bahkan
+# melewatkan scheduled run saat antreannya padat. Menjalankan dua kali aman
+# karena endpoint-nya idempoten — percobaan kedua membalas "sudah check-in"
+# atau "presensi hari ini sudah lengkap" tanpa menulis apa pun.
 on:
   schedule:
-    - cron: "25 0 * * 1-5"
-    - cron: "55 14 * * 1-5"
+    # ── Check-in — jendela 07:30-07:45 WIB ──
+    - cron: "25 0 * * 1-5"   # 07:25 WIB
+    - cron: "10 1 * * 1-5"   # 08:10 WIB (cadangan, masih dalam tenggang 09:45)
+    # ── Check-out — jendela 22:00-22:30 WIB ──
+    - cron: "5 15 * * 1-5"   # 22:05 WIB
+    - cron: "40 15 * * 1-5"  # 22:40 WIB (cadangan; telat tidak ditolak)
   # Supaya bisa diuji manual dari tab Actions tanpa menunggu jadwal.
   workflow_dispatch:
     inputs:

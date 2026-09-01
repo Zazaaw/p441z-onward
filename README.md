@@ -36,8 +36,15 @@ bagian terkait di panel login hilang tanpa membuat error.
 ## Cron lewat GitHub Actions
 
 [.github/workflows/cron.yml](.github/workflows/cron.yml) memanggil
-`/api/cron` dua kali pada hari kerja: 07:25 dan 21:55 WIB, beberapa menit
-sebelum masing-masing jendela dibuka.
+`/api/cron` empat kali pada hari kerja: 07:25 dan 08:10 WIB untuk check-in,
+22:05 dan 22:40 WIB untuk check-out. Yang kedua pada tiap pasangan adalah
+cadangan — GitHub bisa menunda atau melewatkan scheduled run saat antreannya
+padat, dan endpoint-nya idempoten sehingga menjalankan dua kali aman.
+
+Waktunya tidak simetris karena aturannya memang berbeda: check-in menolak
+panggilan yang **terlalu telat** (jam yang dicatat diacak di dalam jendela,
+jadi datang lebih awal tidak masalah), sedangkan check-out menolak yang
+**terlalu awal** dan tidak punya batas atas.
 
 Isi dua secret di **Settings → Secrets and variables → Actions**:
 
