@@ -1,20 +1,20 @@
 import "server-only";
 
-import { promises as fs } from "fs";
-import path from "path";
+import { simpanan, PESAN_BELUM_DISETEL } from "./simpanan-client";
 
 /**
  * Pengaturan otomasi.
  *
- * KENAPA FILE, BUKAN DATABASE?
- * Ini alat satu-pengguna. Bikin tabel di ESS-DEV cuma untuk menyimpan
- * preferensi pribadi berarti menitipkan sampah ke database kantor. File JSON
- * lokal lebih tepat, lebih gampang di-backup, dan gampang dihapus.
+ * Disimpan di Supabase portfolio, satu baris jsonb.
  *
- * CATATAN DEPLOY: filesystem Vercel bersifat read-only dan ephemeral. Kalau
- * nanti di-deploy ke sana, pindahkan penyimpanan ini ke Vercel KV / Upstash /
- * satu tabel kecil. Kontrak fungsinya (getPengaturan/simpanPengaturan) tidak
- * perlu berubah — cukup ganti isinya.
+ * Dulu berupa berkas JSON lokal dengan alasan "jangan menitipkan preferensi
+ * pribadi ke database kantor". Alasan itu masih berlaku — makanya yang
+ * dipakai database portfolio, bukan ESS-DEV. Yang berubah cuma medianya,
+ * karena filesystem Vercel read-only sehingga berkasnya tidak pernah bisa
+ * ditulis di produksi.
+ *
+ * Bentuknya jsonb, bukan satu kolom per field, supaya menambah pengaturan
+ * baru tidak menuntut migrasi — persis seperti sebelumnya saat masih JSON.
  */
 
 export type Pengaturan = {
@@ -74,27 +74,50 @@ export const DEFAULT_PENGATURAN: Pengaturan = {
   mood_keluar: "bahagia",
 };
 
-const FILE = path.join(process.cwd(), "data", "pengaturan.json");
+/** Satu baris saja, dikunci pada id = 1. */
+const BARIS_ID = 1;
+const TABEL = "onward_pengaturan";
 
 export async function getPengaturan(): Promise<Pengaturan> {
-  try {
-    const isi = await fs.readFile(FILE, "utf-8");
-    // Gabung dengan default supaya field baru tidak bikin undefined saat
-    // file lama dibaca versi kode yang lebih baru.
-    return { ...DEFAULT_PENGATURAN, ...JSON.parse(isi) };
-  } catch {
+  if (!simpanan) {
+    console.warn("[pengaturan]", PESAN_BELUM_DISETEL, "— memakai bawaan.");
     return DEFAULT_PENGATURAN;
   }
+
+  const { data, error } = await simpanan
+    .from(TABEL)
+    .select("data")
+    .eq("id", BARIS_ID)
+    .maybeSingle();
+
+  // Gagal baca jangan sampai menjatuhkan halaman yang memanggilnya —
+  // dashboard tetap harus tampil walau pengaturan tidak terbaca.
+  if (error) {
+    console.error("[pengaturan] gagal membaca:", error.message);
+    return DEFAULT_PENGATURAN;
+  }
+
+  // Gabung dengan bawaan supaya field yang baru ditambahkan tidak menjadi
+  // undefined saat baris lama dibaca oleh versi kode yang lebih baru.
+  return { ...DEFAULT_PENGATURAN, ...((data?.data as Partial<Pengaturan>) ?? {}) };
 }
 
 export async function simpanPengaturan(
   patch: Partial<Pengaturan>
 ): Promise<Pengaturan> {
+  // Di sini justru MELEMPAR kalau belum disetel — beda dari pembaca di atas.
+  // Menyimpan yang diam-diam gagal jauh lebih berbahaya: pengguna mengira
+  // otomasi sudah menyala padahal tidak.
+  if (!simpanan) throw new Error(PESAN_BELUM_DISETEL);
+
   const sekarang = await getPengaturan();
   const baru = { ...sekarang, ...patch };
 
-  await fs.mkdir(path.dirname(FILE), { recursive: true });
-  await fs.writeFile(FILE, JSON.stringify(baru, null, 2), "utf-8");
+  const { error } = await simpanan
+    .from(TABEL)
+    .upsert({ id: BARIS_ID, data: baru, updated_at: new Date().toISOString() });
+
+  if (error) throw new Error(`Gagal menyimpan pengaturan: ${error.message}`);
 
   return baru;
 }

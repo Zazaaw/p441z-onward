@@ -53,20 +53,29 @@ Catatan: jadwal Actions kerap meleset 5–15 menit saat antreannya ramai.
 Endpoint sudah memberi toleransi 2 jam setelah jendela berakhir, jadi
 keterlambatan sebesar itu masih tertangani.
 
-### Sebelum otomasi dinyalakan di Vercel
+### Menyiapkan penyimpanan (wajib, sekali saja)
 
-`src/services/pengaturan.ts` menyimpan preferensi otomasi ke berkas JSON
-lokal. **Filesystem Vercel read-only dan ephemeral**, jadi di sana
-penyimpanan itu tidak akan bertahan: pengaturan kembali ke bawaan setiap kali
-instance baru dijalankan.
+Pengaturan otomasi dan riwayat cron disimpan di Supabase **portfolio**, bukan
+ESS-DEV — preferensi pribadi tidak dititipkan ke database kantor.
 
-Konsekuensinya, di Vercel:
+1. Buka Supabase Dashboard project portfolio → **SQL Editor**, jalankan
+   [sql/001-penyimpanan-onward.sql](sql/001-penyimpanan-onward.sql).
+2. **Project Settings → API**, salin `service_role` key.
+3. Isi `PORTFOLIO_SUPABASE_SERVICE_ROLE_KEY` — di `.env.local` untuk lokal,
+   dan di Environment Variables Vercel untuk produksi.
 
-- Halaman **Otomasi** akan gagal saat menyimpan.
-- Cron tetap berjalan, tetapi selalu membaca pengaturan bawaan —
-  dan bawaannya `auto_aktif: false`, sehingga tidak melakukan apa pun.
+Tanpa langkah ini aplikasi tetap jalan, tetapi otomasi tidak bisa dinyalakan
+dan halaman Log kosong.
 
-Sisa aplikasi (login, dashboard, riwayat, log) berjalan normal. Untuk
-mengaktifkan otomasi, pindahkan penyimpanan ke Vercel KV / Upstash / satu
-tabel kecil. Kontrak `getPengaturan` / `simpanPengaturan` tidak perlu berubah
-— cukup ganti isinya.
+### Kenapa tidak berupa berkas JSON lagi
+
+Sebelumnya keduanya disimpan di `data/*.json`. Itu jalan mulus di laptop dan
+gagal total di Vercel yang filesystem-nya read-only, dengan dua akibat yang
+sulit dilacak:
+
+- Menekan check-in memunculkan halaman error padahal barisnya sudah masuk
+  database — yang gagal cuma pencatatan log setelahnya.
+- Cron tampak sehat (Actions hijau, HTTP 200) tetapi tidak pernah melakukan
+  apa pun, karena pengaturan selalu jatuh ke bawaan `auto_aktif: false`.
+
+Menyamakan penyimpanan dev dan produksi menghapus seluruh kelas kegagalan itu.
