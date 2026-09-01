@@ -13,6 +13,13 @@ import path from "path";
  *
  * Sama seperti pengaturan.ts: file lokal. Kalau nanti deploy ke Vercel,
  * pindahkan ke KV/DB — kontraknya tetap.
+ *
+ * PENTING: mencatat log TIDAK BOLEH menjatuhkan aksi yang sedang dicatat.
+ * Di Vercel filesystem-nya read-only, jadi penulisan di sini pasti gagal
+ * dengan EROFS. Sebelum ini galatnya merambat naik ke server action dan
+ * memunculkan halaman error, padahal check-in-nya sendiri sudah berhasil
+ * masuk database — pengguna melihat "Ada yang tersendat" untuk sesuatu
+ * yang sebenarnya sukses.
  */
 
 export type EntriLog = {
@@ -35,13 +42,20 @@ export async function bacaLog(): Promise<EntriLog[]> {
 }
 
 export async function catatLog(entri: Omit<EntriLog, "waktu">): Promise<void> {
-  const log = await bacaLog();
-  log.unshift({ waktu: new Date().toISOString(), ...entri });
+  try {
+    const log = await bacaLog();
+    log.unshift({ waktu: new Date().toISOString(), ...entri });
 
-  await fs.mkdir(path.dirname(FILE), { recursive: true });
-  await fs.writeFile(
-    FILE,
-    JSON.stringify(log.slice(0, MAKS), null, 2),
-    "utf-8"
-  );
+    await fs.mkdir(path.dirname(FILE), { recursive: true });
+    await fs.writeFile(
+      FILE,
+      JSON.stringify(log.slice(0, MAKS), null, 2),
+      "utf-8"
+    );
+  } catch (e) {
+    // Ditelan dengan sengaja — lihat catatan di atas. Tetap dicetak ke
+    // console supaya masih terlihat di log server (Vercel Runtime Logs),
+    // jadi kegagalannya tidak benar-benar senyap.
+    console.error("[log] gagal menulis riwayat:", e);
+  }
 }
